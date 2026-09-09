@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -12,6 +13,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "vendor" / "cursor-plugins" / "pstack"
 DESTINATION = ROOT / "plugins" / "pstack-codex"
+TEXT_SUFFIXES = {
+    ".md",
+    ".mdc",
+    ".mjs",
+    ".sh",
+    ".toml",
+    ".ts",
+    ".txt",
+    ".yaml",
+    ".yml",
+}
 
 
 def snapshot(directory: Path) -> dict[str, str]:
@@ -20,6 +32,41 @@ def snapshot(directory: Path) -> dict[str, str]:
         if path.is_file():
             result[path.relative_to(directory).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result
+
+
+def allowlisted_transform(
+    value: str,
+    skill_names: set[str],
+    rules: dict[str, object],
+    *,
+    prose: bool,
+) -> str:
+    """Independent reference implementation for generated text changes."""
+
+    for rule in rules["literal_replacements"]:  # type: ignore[index]
+        value = value.replace(rule["from"], rule["to"])  # type: ignore[index]
+    for rule in rules["regex_replacements"]:  # type: ignore[index]
+        value = re.sub(rule["pattern"], rule["to"], value)  # type: ignore[index]
+    names = "|".join(re.escape(name) for name in sorted(skill_names, key=len, reverse=True))
+    dynamic = next(
+        rule for rule in rules["dynamic_transforms"]  # type: ignore[index]
+        if rule["name"] == "skill-invocation"  # type: ignore[index]
+    )
+    value = re.sub(
+        dynamic["pattern"].format(skill_names=names),  # type: ignore[index]
+        dynamic["replacement"],  # type: ignore[index]
+        value,
+    )
+    if prose:
+        for rule in rules["prose_regex_replacements"]:  # type: ignore[index]
+            value = re.sub(rule["pattern"], rule["to"], value)  # type: ignore[index]
+    lines = [line.rstrip() for line in value.splitlines()]
+    normalized = "\n".join(lines)
+    return normalized + ("\n" if value.endswith("\n") else "")
+
+
+def markdown_links(path: Path) -> list[str]:
+    return re.findall(r"\[[^\]]*\]\(([^)]+)\)", path.read_text(encoding="utf-8"))
 
 
 class PortTests(unittest.TestCase):
@@ -50,8 +97,33 @@ class PortTests(unittest.TestCase):
         self.assertEqual(manifest["version"], "0.14.8")
 
     def test_marketplace_points_at_generated_plugin(self) -> None:
-        marketplace = json.loads((ROOT / "marketplace.json").read_text())
+        marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
         self.assertEqual(marketplace["plugins"][0]["source"]["path"], "./plugins/pstack-codex")
+        self.assertEqual(marketplace, json.loads((ROOT / "marketplace.json").read_text()))
+
+    def test_ci_is_pinned_and_upstream_job_only_opens_prs(self) -> None:
+        validate_workflow = (ROOT / ".github/workflows/validate.yml").read_text()
+        update_workflow = (ROOT / ".github/workflows/upstream-update.yml").read_text()
+        for workflow in (validate_workflow, update_workflow):
+            self.assertNotRegex(workflow, r"actions/(checkout|setup-python)@v")
+            self.assertRegex(
+                workflow,
+                r"actions/(checkout|setup-python)@[0-9a-f]{40}",
+            )
+        self.assertIn("schedule:", update_workflow)
+        self.assertIn("pull-requests: write", update_workflow)
+        self.assertIn("gh pr create", update_workflow)
+        self.assertNotIn("gh pr merge", update_workflow)
+        self.assertNotIn("enable-auto-merge", update_workflow)
+
+    def test_official_or_compatible_plugin_validator_passes(self) -> None:
+        subprocess.run(
+            [sys.executable, "scripts/run_plugin_validator.py", "plugins/pstack-codex"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def test_skill_directory_parity(self) -> None:
         source_skills = {path.name for path in (SOURCE / "skills").iterdir() if path.is_dir()}
@@ -72,6 +144,56 @@ class PortTests(unittest.TestCase):
                 self.assertTrue(config["description"])
                 self.assertTrue(config["developer_instructions"])
 
+    def test_skill_invocation_metadata_is_codex_compatible(self) -> None:
+        skill_dirs = [path for path in (DESTINATION / "skills").iterdir() if path.is_dir()]
+        self.assertEqual(len(skill_dirs), 45)
+        explicit_values = 0
+        for skill_root in skill_dirs:
+            contents = (skill_root / "SKILL.md").read_text(encoding="utf-8")
+            match = re.search(r"^disable-model-invocation:\s*(\w+)\s*$", contents, re.MULTILINE)
+            if match:
+                explicit_values += 1
+                self.assertEqual(match.group(1), "false", skill_root.name)
+        self.assertEqual(explicit_values, 44)
+
+    def test_internal_relative_markdown_links_resolve(self) -> None:
+        broken: list[tuple[str, str]] = []
+        for path in DESTINATION.rglob("*.md"):
+            for raw in markdown_links(path):
+                target = raw.strip().split("#", 1)[0].split("?", 1)[0].strip("<>")
+                if not target or target.startswith(("http://", "https://", "mailto:", "tel:")):
+                    continue
+                if target in {"url", "URL"} or any(marker in target for marker in ("<", ">", "{", "}")):
+                    continue
+                resolved = (path.parent / target).resolve()
+                if not resolved.exists():
+                    broken.append((str(path.relative_to(ROOT)), raw))
+        self.assertEqual(broken, [])
+
+    def test_generated_copy_changes_match_allowlist(self) -> None:
+        rules = json.loads((ROOT / "config/compatibility-allowlist.json").read_text())
+        source_skills = {path.name for path in (SOURCE / "skills").iterdir() if path.is_dir()}
+        skipped = {Path(".cursor-plugin/plugin.json"), Path("agents/comment-sicko.md"), Path("agents/poteto-agent.md")}
+        for source_path in sorted(SOURCE.rglob("*")):
+            if not source_path.is_file():
+                continue
+            relative = source_path.relative_to(SOURCE)
+            if relative in skipped:
+                continue
+            generated_path = DESTINATION / relative
+            with self.subTest(path=relative):
+                self.assertTrue(generated_path.is_file())
+                if source_path.suffix.lower() not in TEXT_SUFFIXES:
+                    self.assertEqual(generated_path.read_bytes(), source_path.read_bytes())
+                    continue
+                expected = allowlisted_transform(
+                    source_path.read_text(encoding="utf-8"),
+                    source_skills,
+                    rules,
+                    prose=source_path.suffix.lower() in {".md", ".mdc"},
+                )
+                self.assertEqual(generated_path.read_text(encoding="utf-8"), expected)
+
     def test_generated_package_has_no_cursor_only_tokens(self) -> None:
         forbidden = (
             ".cursor",
@@ -90,7 +212,14 @@ class PortTests(unittest.TestCase):
             "api2.cursor.sh",
         )
         for path in sorted(DESTINATION.rglob("*")):
-            if not path.is_file() or path.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+            if not path.is_file() or path.suffix.lower() not in {
+                ".json",
+                ".md",
+                ".mdc",
+                ".toml",
+                ".yaml",
+                ".yml",
+            }:
                 continue
             text = path.read_text(encoding="utf-8")
             for token in forbidden:

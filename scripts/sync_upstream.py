@@ -80,13 +80,44 @@ def refresh(commit: str, repository: str) -> None:
     write_hashes()
 
 
+def latest_commit(repository: str, branch: str) -> str:
+    result = subprocess.run(
+        ["git", "ls-remote", repository, f"refs/heads/{branch}"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    commit = result.stdout.split()[0] if result.stdout.split() else ""
+    if not commit:
+        raise SystemExit(f"could not resolve {repository} branch {branch!r}")
+    return commit
+
+
+def write_pinned_config(config: dict[str, object], commit: str) -> None:
+    repository = str(config["repository"])
+    source_root = repository[:-4] if repository.endswith(".git") else repository
+    config["commit"] = commit
+    config["source"] = f"{source_root}/tree/{commit}/pstack"
+    CONFIG.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="verify the vendored hash manifest")
     parser.add_argument("--write-hashes", action="store_true", help="write hashes for the current vendor tree")
     parser.add_argument("--refresh", action="store_true", help="clone and archive the configured pinned commit")
+    parser.add_argument(
+        "--latest",
+        action="store_true",
+        help="resolve the configured branch head, update the pin, refresh, and regenerate",
+    )
     args = parser.parse_args()
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
+    if args.latest and not args.refresh:
+        args.refresh = True
+    if args.latest:
+        commit = latest_commit(config["repository"], config.get("branch", "main"))
+        write_pinned_config(config, commit)
     if args.refresh:
         refresh(config["commit"], config["repository"])
     if args.write_hashes:

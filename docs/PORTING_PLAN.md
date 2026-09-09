@@ -26,7 +26,9 @@ URL, and version are recorded in [`config/upstream.json`](../config/upstream.jso
 4. **Document boundaries.** Explain the custom-agent installation path, dormant
    Benny pack, model-role configuration, and unsupported Cursor-only endpoints.
 5. **Verify.** Check source hashes, generated determinism, manifest validity,
-   skill parity, agent syntax, and forbidden source-only tokens.
+   skill parity, agent syntax, internal relative links, explicit allowlist
+   coverage, and forbidden source-only tokens. Run the official Codex plugin
+   validator when the runtime is available.
 
 ## Non-goals
 
@@ -41,6 +43,8 @@ URL, and version are recorded in [`config/upstream.json`](../config/upstream.jso
 - The vendored tree matches the pinned archive and its hash manifest.
 - The generated plugin has the same 45 skill directories as upstream.
 - `plugin.json` is Codex-shaped and points at `./skills/`.
+- `plugin.json.interface` contains the required Codex presentation metadata and
+  every generated skill permits model invocation.
 - Both upstream agents are available as valid Codex custom-agent TOML.
 - Running the generator twice produces identical bytes.
 - Tests and the CI workflow pass without network access.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.8-codex.2 — 2026-09-09
+
+- Corrected the Codex manifest interface and skill invocation metadata.
+- Added the canonical repo marketplace, official-validator preflight, link and
+  allowlist coverage tests, and SHA-pinned scheduled upstream PR workflow.
+
 ## 0.14.8-codex.1 — 2026-09-09
 
 - Ported upstream pstack `0.14.8` from commit

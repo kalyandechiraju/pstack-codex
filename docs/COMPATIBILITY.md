@@ -6,6 +6,7 @@ diffing; the generated package receives the transforms below.
 | Upstream concept | Codex representation |
 | --- | --- |
 | Cursor plugin manifest | `.codex-plugin/plugin.json` |
+| upstream presentation metadata | `plugin.json.interface` fields required by Codex |
 | `/skill-name` invocation | `$skill-name` invocation |
 | `.cursor/skills` | `.agents/skills` |
 | Cursor user/project metadata | `~/.codex` / `.codex` |
@@ -16,6 +17,7 @@ diffing; the generated package receives the transforms below.
 | `readonly` | Codex `sandbox_mode` language |
 | Cursor agent Markdown | standalone Codex custom-agent TOML |
 | Cursor `/loop` wake command | Codex heartbeat/automation wording |
+| `disable-model-invocation: true` | `disable-model-invocation: false` so Codex can invoke copied skills |
 
 ## Model roles
 
@@ -48,3 +50,8 @@ The generator does not alter source code semantics, image assets, or upstream
 workflow sequencing. A compatibility change that needs semantic redesign must
 be proposed as a separate change with tests and an explicit update to this
 document.
+
+Every text change in the generated copy is checked against the ordered
+[`config/compatibility-allowlist.json`](../config/compatibility-allowlist.json)
+by the test suite. The manifest and agent conversions are the two documented
+structural transforms.

@@ -1,6 +1,5 @@
 {
   "name": "pstack-codex",
-  "displayName": "pstack for Codex",
   "version": "0.14.8",
   "description": "Rigorous, parallelizable engineering workflows for Codex.",
   "author": {
@@ -9,7 +8,6 @@
   "homepage": "https://github.com/kalyandechiraju/pstack-codex",
   "repository": "https://github.com/kalyandechiraju/pstack-codex",
   "license": "MIT",
-  "logo": "assets/logo.png",
   "keywords": [
     "pstack",
     "poteto-mode",
@@ -19,12 +17,25 @@
     "subagents",
     "unslop"
   ],
-  "category": "developer-tools",
-  "tags": [
-    "workflow",
-    "principles",
-    "review",
-    "planning"
-  ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "pstack for Codex",
+    "shortDescription": "Rigorous, parallelizable engineering workflows for Codex.",
+    "longDescription": "Pstack brings deliberate planning, parallel review, and evidence-driven verification to Codex.",
+    "developerName": "Lauren Tan",
+    "category": "Developer tools",
+    "capabilities": [
+      "Workflow",
+      "Planning",
+      "Review",
+      "Subagents"
+    ],
+    "defaultPrompt": [
+      "Use $poteto-mode for this task.",
+      "Review this change with pstack's rigorous workflow.",
+      "Plan and verify this work before shipping."
+    ],
+    "brandColor": "#6B4EFF",
+    "logo": "./assets/logo.png"
+  }
 }

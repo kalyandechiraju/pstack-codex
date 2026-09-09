@@ -377,7 +377,7 @@ export type ChecksFastPath =
     };
 export interface RollupPage {
   readonly checks: readonly Check[];
-  readonly endCodex: string | null;
+  readonly endCursor: string | null;
 }
 export interface GitHubReader {
   originRepo(): Promise<Repository | null>;

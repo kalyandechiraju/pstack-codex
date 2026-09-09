@@ -8,7 +8,7 @@ and converts the two upstream agent manifests to Codex custom-agent TOML.
 
 ## Install
 
-In Codex, add this repository's `marketplace.json` as a local marketplace and
+In Codex, add this repository's `.agents/plugins/marketplace.json` as a local marketplace and
 install `pstack-codex`. The installable package is
 [`plugins/pstack-codex`](plugins/pstack-codex). After installation, invoke the
 main workflow with `$poteto-mode` and configure model roles with `$setup-pstack`.
@@ -27,6 +27,8 @@ for a project or `~/.codex/agents/` for user-level use.
   deliberately changed upstream pin.
 - `config/compatibility-allowlist.json` records every mechanical compatibility
   transform.
+- `.agents/plugins/marketplace.json` is the canonical repo/team marketplace;
+  root `marketplace.json` is kept as an identical convenience copy.
 - `docs/` explains the port boundary and the refresh process.
 
 ## Development
@@ -34,11 +36,15 @@ for a project or `~/.codex/agents/` for user-level use.
 ```bash
 python3 scripts/port.py
 python3 scripts/sync_upstream.py --check
+python3 scripts/run_plugin_validator.py plugins/pstack-codex
 python3 -m unittest discover -s tests -v
 ```
 
 The generator is the source of truth for `plugins/pstack-codex`; changes to a
 generated file should be made in the generator or allowlist and regenerated.
+When the Codex runtime is installed locally, `run_plugin_validator.py` invokes
+the official plugin validator first. CI uses the checked-in dependency-free
+compatible validator when the runtime is unavailable.
 
 ## Attribution and license
 

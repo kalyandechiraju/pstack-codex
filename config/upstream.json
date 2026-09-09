@@ -1,6 +1,7 @@
 {
   "source": "https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack",
   "repository": "https://github.com/cursor/plugins.git",
+  "branch": "main",
   "plugin": "pstack",
   "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
   "version": "0.14.8",

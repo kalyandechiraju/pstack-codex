@@ -1,5 +1,29 @@
 {
   "description": "Ordered, mechanical compatibility transforms applied only to the generated Codex package. The vendor tree is never rewritten.",
+  "structural_transforms": [
+    {
+      "name": "codex-plugin-manifest",
+      "description": "Replace the upstream plugin manifest with the supported Codex manifest and move presentation metadata into interface."
+    },
+    {
+      "name": "custom-agent-toml",
+      "description": "Convert the two upstream agent Markdown wrappers to standalone Codex custom-agent TOML files."
+    }
+  ],
+  "dynamic_transforms": [
+    {
+      "name": "skill-invocation",
+      "pattern": "(?<![A-Za-z0-9_./-])/({skill_names})(?![A-Za-z0-9_-])",
+      "replacement": "$\\1",
+      "reason": "Convert invocations of the copied skills from slash commands to Codex $skill names without changing relative file links."
+    }
+  ],
+  "normalizations": [
+    {
+      "name": "trim-trailing-whitespace",
+      "reason": "Keep generated text reviewable; the immutable vendor snapshot retains its original bytes."
+    }
+  ],
   "literal_replacements": [
     {
       "from": "https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack",
@@ -80,16 +104,6 @@
       "from": "/loop",
       "to": "heartbeat",
       "reason": "Codex uses task heartbeats and automations instead of the upstream command."
-    },
-    {
-      "from": "/automate",
-      "to": "$automate",
-      "reason": "Use the Codex automation editor skill invocation."
-    },
-    {
-      "from": "/goal",
-      "to": "goal",
-      "reason": "Describe Codex's goal state without relying on an upstream slash command."
     },
     {
       "from": "claude-fable-5-1-thinking-max",
@@ -182,19 +196,9 @@
       "reason": "Remove a Cursor-only model/agent label from prose."
     },
     {
-      "from": "Cursor",
-      "to": "Codex",
-      "reason": "Update product prose in the generated package."
-    },
-    {
-      "from": "cursor's",
-      "to": "Codex's",
-      "reason": "Update lower-case product prose in the generated package."
-    },
-    {
-      "from": "make cursor work",
-      "to": "make Codex work",
-      "reason": "Update lower-case product prose in the generated package."
+      "from": "disable-model-invocation: true",
+      "to": "disable-model-invocation: false",
+      "reason": "Codex plugin validation requires copied skills to remain eligible for model invocation."
     }
   ],
   "regex_replacements": [
@@ -222,6 +226,38 @@
       "pattern": "(?<![A-Za-z0-9_./-])/(deslop|create-skill|babysit)(?![A-Za-z0-9_-])",
       "to": "$\\1",
       "reason": "Translate referenced Codex built-in skills to the Codex invocation form without changing file links."
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_./-])/automate(?![A-Za-z0-9_-])",
+      "to": "$automate",
+      "reason": "Use the Codex automation editor skill invocation without changing the $automate-me skill path."
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_./-])/goal(?![A-Za-z0-9_-])",
+      "to": "goal",
+      "reason": "Describe Codex's goal state without relying on an upstream slash command."
+    },
+    {
+      "pattern": "Task `model`",
+      "to": "subagent role",
+      "reason": "Translate the source Task model parameter to Codex's role vocabulary."
+    },
+    {
+      "pattern": "Task model",
+      "to": "subagent role",
+      "reason": "Translate the source Task model parameter to Codex's role vocabulary."
+    },
+    {
+      "pattern": "\\bTask\\b",
+      "to": "task",
+      "reason": "Translate the source orchestration vocabulary."
+    }
+  ],
+  "prose_regex_replacements": [
+    {
+      "pattern": "(?i)\\bcursor\\b",
+      "to": "Codex",
+      "reason": "Update product prose in the generated package while leaving code identifiers untouched."
     }
   ]
 }

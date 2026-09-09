@@ -61,19 +61,19 @@ def transform_text(
     # by a word character; command forms such as /how do.
     names = "|".join(re.escape(name) for name in sorted(skill_names, key=len, reverse=True))
     if names:
+        dynamic_rule = next(
+            rule
+            for rule in rules["dynamic_transforms"]
+            if rule["name"] == "skill-invocation"
+        )
         value = re.sub(
-            rf"(?<![A-Za-z0-9_./-])/({names})(?![A-Za-z0-9_-])",
-            r"$\1",
+            dynamic_rule["pattern"].format(skill_names=names),
+            dynamic_rule["replacement"],
             value,
         )
-
-    # A few source phrases contain the model role as a `Task` parameter
-    # rather than in the exact forms covered by the allowlist.
-    value = value.replace("Task model", "subagent role")
-    value = value.replace("Task `model`", "subagent role")
-    value = value.replace("Task", "task")
     if prose:
-        value = re.sub(r"\bcursor\b", "Codex", value, flags=re.IGNORECASE)
+        for rule in rules["prose_regex_replacements"]:
+            value = re.sub(rule["pattern"], rule["to"], value)
     # Whitespace normalization keeps the generated package reviewable without
     # rewriting the immutable upstream archive.
     lines = [line.rstrip() for line in value.splitlines()]
@@ -160,18 +160,32 @@ def copy_source_tree(skill_names: list[str], rules: dict[str, Any]) -> None:
 def write_manifest(source_manifest: dict[str, Any]) -> None:
     manifest = {
         "name": "pstack-codex",
-        "displayName": "pstack for Codex",
         "version": source_manifest["version"],
         "description": "Rigorous, parallelizable engineering workflows for Codex.",
         "author": source_manifest["author"],
         "homepage": "https://github.com/kalyandechiraju/pstack-codex",
         "repository": "https://github.com/kalyandechiraju/pstack-codex",
         "license": source_manifest["license"],
-        "logo": source_manifest["logo"],
         "keywords": source_manifest["keywords"],
-        "category": source_manifest["category"],
-        "tags": source_manifest["tags"],
         "skills": "./skills/",
+        "interface": {
+            "displayName": "pstack for Codex",
+            "shortDescription": "Rigorous, parallelizable engineering workflows for Codex.",
+            "longDescription": (
+                "Pstack brings deliberate planning, parallel review, and evidence-driven "
+                "verification to Codex."
+            ),
+            "developerName": source_manifest["author"]["name"],
+            "category": "Developer tools",
+            "capabilities": ["Workflow", "Planning", "Review", "Subagents"],
+            "defaultPrompt": [
+                "Use $poteto-mode for this task.",
+                "Review this change with pstack's rigorous workflow.",
+                "Plan and verify this work before shipping.",
+            ],
+            "brandColor": "#6B4EFF",
+            "logo": "./assets/logo.png",
+        },
     }
     path = DESTINATION / ".codex-plugin" / "plugin.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -203,7 +217,7 @@ def write_porting_notice() -> None:
 
 This package is generated from the pinned upstream pstack tree. The generated
 skills retain the upstream workflow content while adapting commands, paths,
-model references, and agent definitions to Codex.
+model references, skill invocation metadata, and agent definitions to Codex.
 
 The `automations/benny/` directory is preserved as a dormant source pack for
 users who want to adapt it. It is not registered as an active Codex automation
