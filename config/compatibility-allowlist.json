@@ -30,6 +30,21 @@
   ],
   "literal_replacements": [
     {
+      "from": "writes an always-applied rule",
+      "to": "writes a pstack model configuration file",
+      "reason": "Codex does not auto-apply arbitrary pstack TOML; the pstack skills read this shared configuration explicitly."
+    },
+    {
+      "from": "an always-applied rule that sets pstack's model per role",
+      "to": "a shared pstack configuration file that sets pstack's model per role",
+      "reason": "Describe the explicit pstack configuration lookup rather than implying native Codex rule discovery."
+    },
+    {
+      "from": "small always-applied rule",
+      "to": "small shared configuration file",
+      "reason": "Describe the explicit pstack configuration lookup rather than implying native Codex rule discovery."
+    },
+    {
       "from": "https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack",
       "to": "https://github.com/kalyandechiraju/pstack-codex",
       "reason": "Point generated metadata at this port while preserving the upstream commit in config/upstream.json."

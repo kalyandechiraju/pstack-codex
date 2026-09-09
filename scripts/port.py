@@ -199,10 +199,6 @@ def transform_text(
 def rewrite_setup_pstack_example(value: str) -> str:
     """Replace the upstream rule-frontmatter sample with valid Codex TOML."""
 
-    value = value.replace(
-        "Write `~/.codex/pstack-models.toml`, an always-applied rule that sets pstack's model per role.",
-        "Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role.",
-    )
     start_marker = "### 5. Write the rule"
     end_marker = "### 6. Confirm"
     start = value.find(start_marker)

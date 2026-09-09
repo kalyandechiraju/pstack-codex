@@ -1,11 +1,11 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role. Detects your available models and writes an always-applied rule that overrides the skill defaults. Use for $setup-pstack, "configure pstack models", or changing pstack's model choices.
+description: Configure which models pstack uses per role. Detects your available models and writes a pstack model configuration file that overrides the skill defaults. Use for $setup-pstack, "configure pstack models", or changing pstack's model choices.
 ---
 
 # Setup pstack
 
-Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role. The skills read it and fall back to their inline defaults when a line is absent, so this is an override layer, not a requirement.
+Write `~/.codex/pstack-models.toml`, a shared pstack configuration file that sets pstack's model per role. The skills read it and fall back to their inline defaults when a line is absent, so this is an override layer, not a requirement.
 
 ## Steps
 

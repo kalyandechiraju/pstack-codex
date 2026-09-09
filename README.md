@@ -13,15 +13,57 @@ as valid TOML; see [`config/pstack-models.toml.example`](config/pstack-models.to
 
 ## Install
 
-In Codex, add this repository's `.agents/plugins/marketplace.json` as a local marketplace and
-install `pstack-codex`. The installable package is
-[`plugins/pstack-codex`](plugins/pstack-codex). After installation, invoke the
-main workflow with `$poteto-mode` and configure model roles with `$setup-pstack`.
+Add the GitHub repository as a Codex marketplace, then install the plugin:
+
+```bash
+codex plugin marketplace add kalyandechiraju/pstack-codex --ref main
+codex plugin add pstack-codex@pstack-codex
+```
+
+Start a new Codex task so it discovers the installed skills. Invoke the main
+workflow with `$poteto-mode` and configure model roles with `$setup-pstack`.
+The installable package is [`plugins/pstack-codex`](plugins/pstack-codex).
+
+Verify the installation:
+
+```bash
+codex plugin list --marketplace pstack-codex
+```
+
+## Update
+
+Refresh the Git marketplace snapshot and reinstall the plugin, then start a new
+Codex task:
+
+```bash
+codex plugin marketplace upgrade pstack-codex
+codex plugin add pstack-codex@pstack-codex
+```
+
+## Optional custom agents
 
 Custom agents are separate Codex configuration files because the plugin
-manifest does not register them. Copy the generated files from
-[`plugins/pstack-codex/agents`](plugins/pstack-codex/agents) to `.codex/agents/`
-for a project or `~/.codex/agents/` for user-level use.
+manifest does not register them. To add them to one project:
+
+```bash
+git clone https://github.com/kalyandechiraju/pstack-codex.git
+mkdir -p /path/to/your-project/.codex/agents
+cp pstack-codex/plugins/pstack-codex/agents/*.toml /path/to/your-project/.codex/agents/
+```
+
+Use `~/.codex/agents/` instead for user-level agents.
+
+## Troubleshooting
+
+- If the marketplace is missing, rerun the `codex plugin marketplace add`
+  command and inspect `codex plugin marketplace list`.
+- If the plugin is listed but its skills are absent, reinstall it and start a
+  new Codex task; skill discovery happens at the task boundary.
+- If `$setup-pstack` cannot write `~/.codex/pstack-models.toml`, grant Codex
+  access to that file or copy `config/pstack-models.toml.example` there
+  manually.
+- The two custom agents are intentionally separate from plugin installation;
+  copy their TOML files as shown above when you want them.
 
 ## Repository layout
 

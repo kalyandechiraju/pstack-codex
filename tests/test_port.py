@@ -62,10 +62,6 @@ def allowlisted_transform(
         for rule in rules["prose_regex_replacements"]:  # type: ignore[index]
             value = re.sub(rule["pattern"], rule["to"], value)  # type: ignore[index]
     if relative_path == Path("skills/setup-pstack/SKILL.md"):
-        value = value.replace(
-            "Write `~/.codex/pstack-models.toml`, an always-applied rule that sets pstack's model per role.",
-            "Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role.",
-        )
         start_marker = "### 5. Write the rule"
         end_marker = "### 6. Confirm"
         start = value.find(start_marker)
@@ -176,6 +172,7 @@ class PortTests(unittest.TestCase):
             if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES
         )
         self.assertIsNone(forbidden.search(generated_text))
+        self.assertNotIn("always-applied", generated_text)
         for slug in ("gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-astra", "gpt-5.6-terra"):
             self.assertIn(slug, generated_text)
 
