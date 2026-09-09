@@ -1,19 +1,111 @@
-# pstack for Codex
+<div align="center">
+  <img src="docs/assets/pstack-codex-hero.png" alt="pstack for Codex — Go deep. Ship with proof." width="100%">
 
-This repository ports Lauren Tan's `pstack` plugin from the pinned Cursor
-snapshot at commit `7314f723a487ec406b6369fe5865ba034cfed166` (`0.14.8`) to
-Codex. It carries the upstream skills and reference material, adapts the
-invocation syntax and workspace paths, maps model names to configurable roles,
-and converts the two upstream agent manifests to Codex custom-agent TOML.
+  <p><strong>A Codex-native port of Lauren Tan's pstack engineering workflows.</strong><br>
+  Investigate deeply, choose the right playbook, delegate deliberately, and finish with evidence.</p>
 
-The generated defaults use real Codex model slugs (`gpt-5.6-luna` for fast work,
-`gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and `gpt-5.6-terra` for
-the fourth panel). `$setup-pstack` writes semantic role tables and panel arrays
-as valid TOML; see [`config/pstack-models.toml.example`](config/pstack-models.toml.example).
+  [![CI](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/ci.yml/badge.svg)](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/ci.yml)
+  [![Upstream pstack](https://img.shields.io/badge/upstream-0.14.8-6D5AE6)](https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack)
+  [![License: MIT](https://img.shields.io/badge/license-MIT-2D9D78)](LICENSE)
+
+  [Install](#install) · [Learn pstack](#learn-pstack) · [See the translation](#from-cursor-to-codex) · [Develop the port](#development)
+</div>
+
+## What pstack changes
+
+pstack is a **workflow layer, not an app framework**. You keep your language,
+architecture, tests, and Git process. pstack gives Codex a disciplined way to
+understand the system, design a change, divide work, challenge assumptions, and
+prove the result on the surface that matters.
+
+You describe the outcome and its boundaries; the plugin supplies the process.
+
+```text
+goal + known context + must-not-change + proof of done + permissions
+```
+
+For example:
+
+```text
+$poteto-mode Add a watched filter to the existing movie list.
+Preserve the current storage format and keyboard controls.
+Done means the filter works after reload and the focused tests pass.
+Work locally only; do not push, open a PR, merge, or deploy.
+```
+
+That last line matters. Editing, publishing, merging, and deploying are separate
+permissions—name the boundary you actually want.
+
+## Learn pstack
+
+> **[Open the practical pstack field guide →](docs/pstack-guide.html)**<br>
+> A source-checked, interactive walkthrough of setup, prompting, new and
+> existing projects, verification, workflows, guardrails, and worked examples.
+
+The supplied guide is preserved unchanged from the provided file. It reviews
+upstream **pstack 0.15.0** and uses the original Cursor command and path syntax.
+This repository currently ports the pinned **0.14.8** snapshot to Codex. Use the
+translation below when following it here.
+
+### The useful mental model
+
+| You provide | pstack provides |
+| --- | --- |
+| The outcome and non-goals | A task-matched playbook |
+| Product and technical constraints | Investigation and design structure |
+| A concrete finish condition | Implementation and review roles |
+| Permission boundaries | Verification and visible evidence |
+
+Two good ways to begin:
+
+- **New project:** build one thin, runnable, verifiable slice before expanding
+  scope. A small end-to-end proof teaches more than a wide scaffold.
+- **Existing project:** establish a read-only baseline first. Learn the normal
+  launch and test paths, record pre-existing failures, and preserve unrelated
+  local work.
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="plugins/pstack-codex/docs/guide/images/router.jpg" alt="An illustrated routing workshop" width="100%">
+      <br><strong>One front door</strong><br>
+      <sub><code>$poteto-mode</code> reads the goal and selects the workflow. Prompt the job—not the agent choreography.</sub>
+    </td>
+    <td width="50%" valign="top">
+      <img src="plugins/pstack-codex/docs/guide/images/verification.jpg" alt="An illustrated evidence and verification workshop" width="100%">
+      <br><strong>Proof over confidence</strong><br>
+      <sub>Tests, logs, screenshots, and real-app behavior outrank a confident “done.” Agreement between reviewers is not correctness.</sub>
+    </td>
+  </tr>
+</table>
+
+When several approaches compete, an **arena** compares independent proposals.
+When independent pieces can be built safely in isolation, **parallel workers**
+can help. More agents are not automatically better; use fan-out only when the
+work and evidence justify it.
+
+## From Cursor to Codex
+
+The port preserves upstream intent while adapting discovery, invocation,
+workspace paths, model roles, and agent manifests for Codex.
+
+| In the upstream guide | In this Codex port |
+| --- | --- |
+| `/poteto-mode` | `$poteto-mode` |
+| `/architect` | `$architect` |
+| `/create-verification-skill` | `$create-verification-skill` |
+| `.cursor/skills/` | `.agents/skills/` |
+| Cursor model rules | `~/.codex/pstack-models.toml` |
+
+The generated defaults use real Codex model slugs: `gpt-5.6-luna` for fast
+work, `gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and
+`gpt-5.6-terra` for the fourth panel. `$setup-pstack` writes semantic role
+tables and panel arrays as valid TOML; see
+[`config/pstack-models.toml.example`](config/pstack-models.toml.example).
 
 ## Install
 
-Add the GitHub repository as a Codex marketplace, then install the plugin:
+Add this GitHub repository as a Codex marketplace, then install the plugin:
 
 ```bash
 codex plugin marketplace add kalyandechiraju/pstack-codex --ref main
@@ -76,7 +168,8 @@ Use `~/.codex/agents/` instead for user-level agents.
   transform.
 - `.agents/plugins/marketplace.json` is the canonical repo/team marketplace;
   root `marketplace.json` is kept as an identical convenience copy.
-- `docs/` explains the port boundary and the refresh process.
+- `docs/` explains the port boundary and refresh process and contains the
+  interactive field guide.
 
 ## Development
 
