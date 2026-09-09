@@ -4,7 +4,7 @@
   <p><strong>A Codex-native port of Lauren Tan's pstack engineering workflows.</strong><br>
   Investigate deeply, choose the right playbook, delegate deliberately, and finish with evidence.</p>
 
-  [![CI](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/ci.yml/badge.svg)](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/ci.yml)
+  [![Validate](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml/badge.svg)](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml)
   [![Upstream pstack](https://img.shields.io/badge/upstream-0.14.8-6D5AE6)](https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack)
   [![License: MIT](https://img.shields.io/badge/license-MIT-2D9D78)](LICENSE)
 
