@@ -1,0 +1,227 @@
+{
+  "description": "Ordered, mechanical compatibility transforms applied only to the generated Codex package. The vendor tree is never rewritten.",
+  "literal_replacements": [
+    {
+      "from": "https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack",
+      "to": "https://github.com/kalyandechiraju/pstack-codex",
+      "reason": "Point generated metadata at this port while preserving the upstream commit in config/upstream.json."
+    },
+    {
+      "from": "https://github.com/cursor/plugins",
+      "to": "https://github.com/kalyandechiraju/pstack-codex",
+      "reason": "Avoid shipping an install link that points at the source marketplace."
+    },
+    {
+      "from": "https://api2.cursor.sh/automations/webhook/<id>",
+      "to": "the automation webhook URL supplied by your Codex-compatible automation service",
+      "reason": "The upstream URL is Cursor-specific and cannot be assumed to exist in Codex."
+    },
+    {
+      "from": "worked with millions of lines of code at Meta, Netflix, and Cursor",
+      "to": "worked with millions of lines of code at Meta, Netflix, and other large engineering teams",
+      "reason": "Avoid attributing the upstream author's employer history to the Codex port."
+    },
+    {
+      "from": "out of the box the mode splits work by model strength: precisely-specified code, prose, and judgment go to fable 5.1, while fast mechanical code goes to grok. the default panel is fable 5.1 / sol / grok / opus 5.",
+      "to": "out of the box the mode splits work by role: precisely-specified code, prose, and judgment use the configured judgment role, while fast mechanical code uses the configured fast role. the default panel uses the configured Codex role set.",
+      "reason": "Replace upstream model-family prose with the role-based Codex configuration."
+    },
+    {
+      "from": "cursor-team-kit",
+      "to": "companion team-kit plugin",
+      "reason": "The upstream companion plugin is not bundled or assumed to exist under a Codex product name."
+    },
+    {
+      "from": "agents/comment-sicko.md",
+      "to": "agents/comment-sicko.toml",
+      "reason": "The generated custom agent uses Codex TOML."
+    },
+    {
+      "from": "agents/poteto-agent.md",
+      "to": "agents/poteto-agent.toml",
+      "reason": "The generated custom agent uses Codex TOML."
+    },
+    {
+      "from": "~/.cursor/rules/pstack-models.mdc",
+      "to": "~/.codex/pstack-models.toml",
+      "reason": "Move the user-level model-role configuration to a Codex path and format."
+    },
+    {
+      "from": ".cursor/rules/pstack-models.mdc",
+      "to": ".codex/pstack-models.toml",
+      "reason": "Move the project-level model-role configuration to a Codex path and format."
+    },
+    {
+      "from": "pstack-models.mdc",
+      "to": "pstack-models.toml",
+      "reason": "The generated configuration example uses TOML."
+    },
+    {
+      "from": ".cursor/skills",
+      "to": ".agents/skills",
+      "reason": "Codex project skills are discovered from .agents/skills."
+    },
+    {
+      "from": "~/.cursor",
+      "to": "~/.codex",
+      "reason": "Use the Codex home for user-owned configuration."
+    },
+    {
+      "from": ".cursor",
+      "to": ".codex",
+      "reason": "Use the Codex project metadata directory."
+    },
+    {
+      "from": "/add-plugin pstack",
+      "to": "add `pstack-codex` from this repository's marketplace",
+      "reason": "Replace the Cursor-only install command with a product-neutral marketplace instruction."
+    },
+    {
+      "from": "/loop",
+      "to": "heartbeat",
+      "reason": "Codex uses task heartbeats and automations instead of the upstream command."
+    },
+    {
+      "from": "/automate",
+      "to": "$automate",
+      "reason": "Use the Codex automation editor skill invocation."
+    },
+    {
+      "from": "/goal",
+      "to": "goal",
+      "reason": "Describe Codex's goal state without relying on an upstream slash command."
+    },
+    {
+      "from": "claude-fable-5-1-thinking-max",
+      "to": "pstack.judgment",
+      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+    },
+    {
+      "from": "gpt-5.6-sol-max",
+      "to": "pstack.review",
+      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+    },
+    {
+      "from": "grok-4.6-fast-xhigh",
+      "to": "pstack.fast",
+      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+    },
+    {
+      "from": "claude-opus-5-thinking-xhigh",
+      "to": "pstack.deep-judgment",
+      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+    },
+    {
+      "from": "gpt-4o",
+      "to": "pstack.fast",
+      "reason": "Use a stable role ID for legacy fast-model references."
+    },
+    {
+      "from": "gpt-4",
+      "to": "pstack.fast",
+      "reason": "Use a stable role ID for legacy fast-model references."
+    },
+    {
+      "from": "subagent_type: \"poteto-agent\"",
+      "to": "custom agent \"poteto-agent\"",
+      "reason": "Codex custom agents are TOML definitions, not Cursor Task parameters."
+    },
+    {
+      "from": "subagent_type: \"Comment Sicko\"",
+      "to": "custom agent \"comment-sicko\"",
+      "reason": "Codex custom agents are TOML definitions, not Cursor Task parameters."
+    },
+    {
+      "from": "subagent_type: generalPurpose",
+      "to": "a standard Codex subagent",
+      "reason": "Replace the Cursor-specific generic agent type."
+    },
+    {
+      "from": "subagent_type: \"generalPurpose\"",
+      "to": "a standard Codex subagent",
+      "reason": "Replace the Cursor-specific generic agent type."
+    },
+    {
+      "from": "run_in_background: true",
+      "to": "run as a background Codex task when available",
+      "reason": "Use Codex task semantics instead of a Cursor Task argument."
+    },
+    {
+      "from": "run_in_background: false",
+      "to": "run in the current Codex task",
+      "reason": "Use Codex task semantics instead of a Cursor Task argument."
+    },
+    {
+      "from": "readonly: false",
+      "to": "sandbox_mode = \"workspace-write\"",
+      "reason": "Translate the source agent mode to a Codex sandbox setting."
+    },
+    {
+      "from": "readonly: true",
+      "to": "sandbox_mode = \"read-only\"",
+      "reason": "Translate the source agent mode to a Codex sandbox setting."
+    },
+    {
+      "from": "agent mode (readonly strips MCP)",
+      "to": "sandbox mode (read-only limits workspace changes)",
+      "reason": "Describe the Codex boundary without promising Cursor-specific MCP behavior."
+    },
+    {
+      "from": "AskQuestion",
+      "to": "request user input",
+      "reason": "Use the Codex user-input flow."
+    },
+    {
+      "from": "subagent_type",
+      "to": "agent",
+      "reason": "Codex descriptions use agent names rather than Cursor Task parameter keys."
+    },
+    {
+      "from": "generalPurpose",
+      "to": "standard Codex subagent",
+      "reason": "Remove a Cursor-only model/agent label from prose."
+    },
+    {
+      "from": "Cursor",
+      "to": "Codex",
+      "reason": "Update product prose in the generated package."
+    },
+    {
+      "from": "cursor's",
+      "to": "Codex's",
+      "reason": "Update lower-case product prose in the generated package."
+    },
+    {
+      "from": "make cursor work",
+      "to": "make Codex work",
+      "reason": "Update lower-case product prose in the generated package."
+    }
+  ],
+  "regex_replacements": [
+    {
+      "pattern": "`Task` call",
+      "to": "subagent call",
+      "reason": "Translate the source orchestration vocabulary."
+    },
+    {
+      "pattern": "`Task` calls",
+      "to": "subagent calls",
+      "reason": "Translate the source orchestration vocabulary."
+    },
+    {
+      "pattern": "\\bTask call\\b",
+      "to": "subagent call",
+      "reason": "Translate the source orchestration vocabulary."
+    },
+    {
+      "pattern": "\\bTask calls\\b",
+      "to": "subagent calls",
+      "reason": "Translate the source orchestration vocabulary."
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_./-])/(deslop|create-skill|babysit)(?![A-Za-z0-9_-])",
+      "to": "$\\1",
+      "reason": "Translate referenced Codex built-in skills to the Codex invocation form without changing file links."
+    }
+  ]
+}
