@@ -43,5 +43,7 @@ Do not run `--write-hashes` as a shortcut for accepting an unexplained vendor
 diff. It is for recording a reviewed archive after a pin refresh.
 
 The scheduled workflow `.github/workflows/upstream-update.yml` runs the same
-refresh and validation path weekly. If the upstream branch changed, it pushes
-an update branch and opens a review PR. It never enables auto-merge.
+refresh and validation path weekly. It also writes a deterministic
+`docs/UPSTREAM_REPORT.md` into the review branch with the old/new pin and the
+paths that changed. If the upstream branch changed, it pushes an update branch
+and opens a review PR. It never enables auto-merge.

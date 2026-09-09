@@ -37,10 +37,10 @@ Launch all reviewers in a single message using the task tool. Use the `interroga
 
 | Subagent | Default model |
 |----------|---------------|
-| Reviewer A | `pstack.judgment` |
-| Reviewer B | `pstack.review` |
-| Reviewer C | `pstack.fast` |
-| Reviewer D | `pstack.deep-judgment` |
+| Reviewer A | `gpt-6-astra` |
+| Reviewer B | `gpt-5.6-sol` |
+| Reviewer C | `gpt-5.6-luna` |
+| Reviewer D | `gpt-5.6-terra` |
 
 For each reviewer:
 - `agent`: `standard Codex subagent`

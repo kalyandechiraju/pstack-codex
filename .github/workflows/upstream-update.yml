@@ -25,6 +25,13 @@ jobs:
           python-version: "3.11"
       - name: Refresh from the upstream branch head
         run: python3 scripts/sync_upstream.py --latest --refresh
+      - name: Render the compatibility report when upstream changed
+        run: |
+          if git diff --quiet -- config/upstream.json vendor/cursor-plugins/pstack plugins/pstack-codex; then
+            echo "Upstream is unchanged; keeping the existing report."
+          else
+            python3 scripts/render_upstream_report.py --base HEAD
+          fi
       - name: Validate the generated package
         run: |
           python3 scripts/run_plugin_validator.py plugins/pstack-codex
@@ -41,7 +48,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$UPDATE_BRANCH"
-          git add config/upstream.json config/hashes/upstream.sha256 vendor/cursor-plugins/pstack plugins/pstack-codex
+          git add config/upstream.json config/hashes/upstream.sha256 vendor/cursor-plugins/pstack plugins/pstack-codex docs/UPSTREAM_REPORT.md
           git commit -m "chore: sync upstream pstack"
           git push --force-with-lease origin "HEAD:$UPDATE_BRANCH"
           if [ "$(gh pr list --head "$UPDATE_BRANCH" --base main --state open --json number --jq 'length')" = "0" ]; then

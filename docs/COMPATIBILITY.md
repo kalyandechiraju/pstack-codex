@@ -11,7 +11,7 @@ diffing; the generated package receives the transforms below.
 | `.cursor/skills` | `.agents/skills` |
 | Cursor user/project metadata | `~/.codex` / `.codex` |
 | `pstack-models.mdc` | `pstack-models.toml` |
-| hard-coded model slugs | `pstack.fast`, `pstack.review`, `pstack.judgment`, and `pstack.deep-judgment` role IDs |
+| hard-coded model slugs | real Codex model slugs in generated defaults, with semantic per-role overrides in TOML |
 | `subagent_type` and `generalPurpose` | Codex agent names and standard Codex subagents |
 | `run_in_background` | Background Codex task when available |
 | `readonly` | Codex `sandbox_mode` language |
@@ -21,10 +21,14 @@ diffing; the generated package receives the transforms below.
 
 ## Model roles
 
-The generated skills refer to stable role IDs rather than assuming a model
-catalog. A user can define the concrete models and reasoning effort in
-`~/.codex/pstack-models.toml` or `.codex/pstack-models.toml`; a starter file is
-[`config/pstack-models.toml.example`](../config/pstack-models.toml.example).
+The generated skills use real Codex model slugs in their defaults: `gpt-5.6-luna`
+for fast work, `gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and
+`gpt-5.6-terra` as the fourth panel model. A user can override each semantic
+role and its reasoning effort in `~/.codex/pstack-models.toml` or
+`.codex/pstack-models.toml`; panel roles use arrays of inline TOML tables. The
+starter file is [`config/pstack-models.toml.example`](../config/pstack-models.toml.example),
+and `$setup-pstack` writes the same valid TOML shape. There are no synthetic
+`pstack.*` model aliases to resolve.
 
 ## Custom agents
 
@@ -53,5 +57,5 @@ document.
 
 Every text change in the generated copy is checked against the ordered
 [`config/compatibility-allowlist.json`](../config/compatibility-allowlist.json)
-by the test suite. The manifest and agent conversions are the two documented
-structural transforms.
+by the test suite. The manifest, agent, and setup-file conversions are the
+documented structural transforms.

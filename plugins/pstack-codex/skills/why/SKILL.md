@@ -118,7 +118,7 @@ Launch all matching investigators in a single message so they run concurrently. 
 
 Subagent config (each):
 - `agent`: `standard Codex subagent`
-- `model`: your configured why-investigators model (default `pstack.fast`)
+- `model`: your configured why-investigators model (default `gpt-5.6-luna`)
 - `readonly`: `false` (agent mode). **Do not use readonly/Ask mode.** It strips MCP access, which disables MCP-backed investigators entirely. The source control investigator would be safe in readonly, but keep modes uniform. Investigators still shouldn't write anything. That's a posture, not a sandbox.
 
 Each investigator gets:
@@ -164,7 +164,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 Spawn one synthesizer subagent:
 
 - `agent`: `standard Codex subagent`
-- `model`: your configured why-synthesizer model (default `pstack.judgment`)
+- `model`: your configured why-synthesizer model (default `gpt-6-astra`)
 - `readonly`: `false` (agent mode). The synthesizer's quality check spot-verifies citations, which can require MCP access. Readonly/Ask mode strips MCPs and defeats that.
 
 The synthesizer gets:

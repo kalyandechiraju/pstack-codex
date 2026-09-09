@@ -40,6 +40,7 @@ def allowlisted_transform(
     rules: dict[str, object],
     *,
     prose: bool,
+    relative_path: Path | None = None,
 ) -> str:
     """Independent reference implementation for generated text changes."""
 
@@ -60,6 +61,31 @@ def allowlisted_transform(
     if prose:
         for rule in rules["prose_regex_replacements"]:  # type: ignore[index]
             value = re.sub(rule["pattern"], rule["to"], value)  # type: ignore[index]
+    if relative_path == Path("skills/setup-pstack/SKILL.md"):
+        value = value.replace(
+            "Write `~/.codex/pstack-models.toml`, an always-applied rule that sets pstack's model per role.",
+            "Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role.",
+        )
+        start_marker = "### 5. Write the rule"
+        end_marker = "### 6. Confirm"
+        start = value.find(start_marker)
+        end = value.find(end_marker, start + len(start_marker))
+        if start == -1 or end == -1:
+            raise AssertionError("setup-pstack example markers are missing")
+        example = (ROOT / "config/pstack-models.toml.example").read_text(encoding="utf-8")
+        replacement = (
+            "### 5. Write the rule\n\n"
+            "Write `~/.codex/pstack-models.toml` as a valid TOML file. Each semantic role\n"
+            "has a table under `[roles]`; single-model roles use `model` and\n"
+            "`reasoning_effort`, while panel roles use a `models` array of inline tables.\n"
+            "Use `inherit-parent` or `auto` as a model value when the role should run on\n"
+            "the parent chat model. Overwrite the whole file so reruns stay idempotent.\n\n"
+            "The default role-to-model mapping is:\n\n"
+            "```toml\n"
+            + example
+            + "```\n\n"
+        )
+        value = value[:start] + replacement + value[end:]
     lines = [line.rstrip() for line in value.splitlines()]
     normalized = "\n".join(lines)
     return normalized + ("\n" if value.endswith("\n") else "")
@@ -89,12 +115,77 @@ class PortTests(unittest.TestCase):
             text=True,
         )
 
+    def test_upstream_config_version_matches_vendored_manifest(self) -> None:
+        config = json.loads((ROOT / "config/upstream.json").read_text(encoding="utf-8"))
+        manifest = json.loads((SOURCE / ".cursor-plugin/plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(config["version"], manifest["version"])
+
+    def test_model_role_example_is_complete_valid_toml(self) -> None:
+        starter = (ROOT / "config/pstack-models.toml.example").read_text(encoding="utf-8")
+        config = tomllib.loads(starter)
+        roles = config["roles"]
+        expected_roles = {
+            "feature",
+            "refactoring",
+            "bug_fix",
+            "perf_issue",
+            "hillclimb",
+            "judgment_and_prose",
+            "hardest_tasks",
+            "how_explorer",
+            "how_explainer",
+            "how_critics",
+            "why_investigators",
+            "why_synthesizer",
+            "reflect_tooling",
+            "reflect_judgment",
+            "reflect_divergent",
+            "reflect_synthesizer",
+            "arena_runners",
+            "arena_cross_judge_pool",
+            "swarm_workers",
+            "architect_runners",
+            "interrogate_reviewers",
+        }
+        self.assertEqual(set(roles), expected_roles)
+        self.assertEqual(roles["feature"]["model"], "gpt-5.6-luna")
+        self.assertEqual(roles["reflect_tooling"]["model"], "gpt-5.6-sol")
+        self.assertEqual(roles["judgment_and_prose"]["model"], "gpt-6-astra")
+        for panel_name in (
+            "how_critics",
+            "arena_runners",
+            "arena_cross_judge_pool",
+            "architect_runners",
+            "interrogate_reviewers",
+        ):
+            panel = roles[panel_name]["models"]
+            self.assertEqual(len(panel), 4, panel_name)
+            self.assertEqual(panel[-1]["model"], "gpt-5.6-terra")
+
+        setup = (DESTINATION / "skills/setup-pstack/SKILL.md").read_text(encoding="utf-8")
+        match = re.search(r"```toml\n(.*?)```", setup, re.DOTALL)
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), starter)
+        self.assertEqual(tomllib.loads(match.group(1)), config)
+
+    def test_generated_defaults_use_real_model_slugs(self) -> None:
+        forbidden = re.compile(r"pstack\.(?:fast|review|judgment|deep-judgment)\b")
+        generated_text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in DESTINATION.rglob("*")
+            if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES
+        )
+        self.assertIsNone(forbidden.search(generated_text))
+        for slug in ("gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-astra", "gpt-5.6-terra"):
+            self.assertIn(slug, generated_text)
+
     def test_manifest_is_codex_shaped(self) -> None:
         manifest = json.loads((DESTINATION / ".codex-plugin/plugin.json").read_text())
+        upstream = json.loads((ROOT / "config/upstream.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["name"], "pstack-codex")
         self.assertEqual(manifest["skills"], "./skills/")
         self.assertNotIn("agents", manifest)
-        self.assertEqual(manifest["version"], "0.14.8")
+        self.assertEqual(manifest["version"], upstream["version"])
 
     def test_marketplace_points_at_generated_plugin(self) -> None:
         marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
@@ -113,6 +204,8 @@ class PortTests(unittest.TestCase):
         self.assertIn("schedule:", update_workflow)
         self.assertIn("pull-requests: write", update_workflow)
         self.assertIn("gh pr create", update_workflow)
+        self.assertIn("render_upstream_report.py", update_workflow)
+        self.assertIn("docs/UPSTREAM_REPORT.md", update_workflow)
         self.assertNotIn("gh pr merge", update_workflow)
         self.assertNotIn("enable-auto-merge", update_workflow)
 
@@ -191,6 +284,7 @@ class PortTests(unittest.TestCase):
                     source_skills,
                     rules,
                     prose=source_path.suffix.lower() in {".md", ".mdc"},
+                    relative_path=relative,
                 )
                 self.assertEqual(generated_path.read_text(encoding="utf-8"), expected)
 

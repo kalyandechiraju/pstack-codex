@@ -6,6 +6,11 @@ Codex. It carries the upstream skills and reference material, adapts the
 invocation syntax and workspace paths, maps model names to configurable roles,
 and converts the two upstream agent manifests to Codex custom-agent TOML.
 
+The generated defaults use real Codex model slugs (`gpt-5.6-luna` for fast work,
+`gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and `gpt-5.6-terra` for
+the fourth panel). `$setup-pstack` writes semantic role tables and panel arrays
+as valid TOML; see [`config/pstack-models.toml.example`](config/pstack-models.toml.example).
+
 ## Install
 
 In Codex, add this repository's `.agents/plugins/marketplace.json` as a local marketplace and

@@ -1,19 +1,108 @@
 # Copy this file to ~/.codex/pstack-models.toml or .codex/pstack-models.toml.
-# The port keeps role IDs stable in its skills and lets each Codex installation
-# choose concrete models and reasoning effort.
+# Each role is a semantic name used by pstack. Single-model roles use model and
+# reasoning_effort; panel roles use a models array of inline tables.
+# Use inherit-parent or auto as a model value to keep the parent chat model.
 
-[roles.pstack.fast]
-model = "gpt-5.6-terra"
-reasoning_effort = "low"
-
-[roles.pstack.review]
-model = "gpt-5.6-sol"
+[roles.feature]
+model = "gpt-5.6-luna"
 reasoning_effort = "medium"
 
-[roles.pstack.judgment]
+[roles.refactoring]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.bug_fix]
 model = "gpt-6-astra"
 reasoning_effort = "high"
 
-[roles.pstack.deep-judgment]
+[roles.perf_issue]
 model = "gpt-6-astra"
-reasoning_effort = "xhigh"
+reasoning_effort = "high"
+
+[roles.hillclimb]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.judgment_and_prose]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.hardest_tasks]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_explorer]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.how_explainer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_critics]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.why_investigators]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.why_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_tooling]
+model = "gpt-5.6-sol"
+reasoning_effort = "medium"
+
+[roles.reflect_judgment]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_divergent]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.arena_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.arena_cross_judge_pool]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.swarm_workers]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.architect_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.interrogate_reviewers]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]

@@ -5,7 +5,7 @@ description: Configure which models pstack uses per role. Detects your available
 
 # Setup pstack
 
-Write `~/.codex/pstack-models.toml`, an always-applied rule that sets pstack's model per role. The skills read it and fall back to their inline defaults when a line is absent, so this is an override layer, not a requirement.
+Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role. The skills read it and fall back to their inline defaults when a line is absent, so this is an override layer, not a requirement.
 
 ## Steps
 
@@ -27,33 +27,123 @@ Every real slug written must be in the detected set; `inherit-parent` and `auto`
 
 ### 5. Write the rule
 
-Write `~/.codex/pstack-models.toml` with `alwaysApply: true` and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
+Write `~/.codex/pstack-models.toml` as a valid TOML file. Each semantic role
+has a table under `[roles]`; single-model roles use `model` and
+`reasoning_effort`, while panel roles use a `models` array of inline tables.
+Use `inherit-parent` or `auto` as a model value when the role should run on
+the parent chat model. Overwrite the whole file so reruns stay idempotent.
 
-```
----
-description: pstack per-role model choices (overrides skill defaults)
-alwaysApply: true
----
-# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit subagent role). Alias entries in a panel list still count toward its fan-out.
-feature, refactoring: pstack.fast
-bug-fix: pstack.judgment
-perf-issue: pstack.judgment
-hillclimb: pstack.judgment
-judgment and prose: pstack.judgment
-hardest tasks: pstack.judgment
-how explorer: pstack.fast
-how explainer: pstack.judgment
-how critics: pstack.judgment, pstack.review, pstack.fast, pstack.deep-judgment
-why investigators: pstack.fast
-why synthesizer: pstack.judgment
-reflect tooling: pstack.review
-reflect judgment, divergent, synthesizer: pstack.judgment
-arena runners: pstack.judgment, pstack.review, pstack.fast, pstack.deep-judgment
-arena cross-judge pool: pstack.judgment, pstack.review, pstack.fast, pstack.deep-judgment
-swarm workers: pstack.fast
-architect runners: pstack.judgment, pstack.review, pstack.fast, pstack.deep-judgment
-interrogate reviewers: pstack.judgment, pstack.review, pstack.fast, pstack.deep-judgment
+The default role-to-model mapping is:
+
+```toml
+# Copy this file to ~/.codex/pstack-models.toml or .codex/pstack-models.toml.
+# Each role is a semantic name used by pstack. Single-model roles use model and
+# reasoning_effort; panel roles use a models array of inline tables.
+# Use inherit-parent or auto as a model value to keep the parent chat model.
+
+[roles.feature]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.refactoring]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.bug_fix]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.perf_issue]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.hillclimb]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.judgment_and_prose]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.hardest_tasks]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_explorer]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.how_explainer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_critics]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.why_investigators]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.why_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_tooling]
+model = "gpt-5.6-sol"
+reasoning_effort = "medium"
+
+[roles.reflect_judgment]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_divergent]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.arena_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.arena_cross_judge_pool]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.swarm_workers]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.architect_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.interrogate_reviewers]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
 ```
 
 ### 6. Confirm

@@ -33,6 +33,118 @@ TEXT_SUFFIXES = {
     ".yml",
 }
 
+SETUP_PSTACK_PATH = Path("skills/setup-pstack/SKILL.md")
+
+MODEL_CONFIG_EXAMPLE = """# Copy this file to ~/.codex/pstack-models.toml or .codex/pstack-models.toml.
+# Each role is a semantic name used by pstack. Single-model roles use model and
+# reasoning_effort; panel roles use a models array of inline tables.
+# Use inherit-parent or auto as a model value to keep the parent chat model.
+
+[roles.feature]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.refactoring]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.bug_fix]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.perf_issue]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.hillclimb]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.judgment_and_prose]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.hardest_tasks]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_explorer]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.how_explainer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.how_critics]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.why_investigators]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.why_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_tooling]
+model = "gpt-5.6-sol"
+reasoning_effort = "medium"
+
+[roles.reflect_judgment]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_divergent]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.reflect_synthesizer]
+model = "gpt-6-astra"
+reasoning_effort = "high"
+
+[roles.arena_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.arena_cross_judge_pool]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.swarm_workers]
+model = "gpt-5.6-luna"
+reasoning_effort = "medium"
+
+[roles.architect_runners]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+
+[roles.interrogate_reviewers]
+models = [
+  { model = "gpt-6-astra", reasoning_effort = "high" },
+  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
+  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
+  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+]
+"""
+
 
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -48,6 +160,7 @@ def transform_text(
     rules: dict[str, Any],
     *,
     prose: bool = False,
+    relative_path: Path | None = None,
 ) -> str:
     """Apply the checked-in ordered compatibility allowlist."""
 
@@ -74,11 +187,41 @@ def transform_text(
     if prose:
         for rule in rules["prose_regex_replacements"]:
             value = re.sub(rule["pattern"], rule["to"], value)
+    if relative_path == SETUP_PSTACK_PATH:
+        value = rewrite_setup_pstack_example(value)
     # Whitespace normalization keeps the generated package reviewable without
     # rewriting the immutable upstream archive.
     lines = [line.rstrip() for line in value.splitlines()]
     normalized = "\n".join(lines)
     return normalized + ("\n" if value.endswith("\n") else "")
+
+
+def rewrite_setup_pstack_example(value: str) -> str:
+    """Replace the upstream rule-frontmatter sample with valid Codex TOML."""
+
+    value = value.replace(
+        "Write `~/.codex/pstack-models.toml`, an always-applied rule that sets pstack's model per role.",
+        "Write `~/.codex/pstack-models.toml`, an always-applied configuration file that sets pstack's model per role.",
+    )
+    start_marker = "### 5. Write the rule"
+    end_marker = "### 6. Confirm"
+    start = value.find(start_marker)
+    end = value.find(end_marker, start + len(start_marker))
+    if start == -1 or end == -1:
+        raise ValueError("setup-pstack example markers are missing")
+    replacement = (
+        "### 5. Write the rule\n\n"
+        "Write `~/.codex/pstack-models.toml` as a valid TOML file. Each semantic role\n"
+        "has a table under `[roles]`; single-model roles use `model` and\n"
+        "`reasoning_effort`, while panel roles use a `models` array of inline tables.\n"
+        "Use `inherit-parent` or `auto` as a model value when the role should run on\n"
+        "the parent chat model. Overwrite the whole file so reruns stay idempotent.\n\n"
+        "The default role-to-model mapping is:\n\n"
+        "```toml\n"
+        + MODEL_CONFIG_EXAMPLE
+        + "```\n\n"
+    )
+    return value[:start] + replacement + value[end:]
 
 
 def parse_frontmatter(markdown: str) -> tuple[dict[str, str], str]:
@@ -150,6 +293,7 @@ def copy_source_tree(skill_names: list[str], rules: dict[str, Any]) -> None:
                     skill_names,
                     rules,
                     prose=source.suffix.lower() in {".md", ".mdc"},
+                    relative_path=relative,
                 ),
                 encoding="utf-8",
             )

@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "upstream.json"
 VENDOR = ROOT / "vendor" / "cursor-plugins" / "pstack"
 HASHES = ROOT / "config" / "hashes" / "upstream.sha256"
+SOURCE_MANIFEST = VENDOR / ".cursor-plugin" / "plugin.json"
 
 
 def tracked_files() -> list[Path]:
@@ -56,7 +57,30 @@ def check_hashes() -> None:
     print(f"verified {len(actual)} vendored files against {CONFIG.relative_to(ROOT)}")
 
 
-def refresh(commit: str, repository: str) -> None:
+def source_version() -> str:
+    if not SOURCE_MANIFEST.is_file():
+        raise SystemExit(f"missing upstream manifest: {SOURCE_MANIFEST}")
+    manifest = json.loads(SOURCE_MANIFEST.read_text(encoding="utf-8"))
+    version = manifest.get("version")
+    if not isinstance(version, str) or not version:
+        raise SystemExit(f"upstream manifest has no usable version: {SOURCE_MANIFEST}")
+    return version
+
+
+def check_manifest_version(config: dict[str, object]) -> None:
+    expected = source_version()
+    actual = config.get("version")
+    if actual != expected:
+        raise SystemExit(
+            f"upstream version mismatch: config/upstream.json has {actual!r}, "
+            f"but the vendored manifest has {expected!r}"
+        )
+    print(f"verified upstream version {expected}")
+
+
+def refresh(config: dict[str, object]) -> None:
+    commit = str(config["commit"])
+    repository = str(config["repository"])
     with tempfile.TemporaryDirectory(prefix="pstack-upstream-") as temporary:
         checkout = Path(temporary) / "checkout"
         subprocess.run(["git", "clone", "--filter=blob:none", repository, str(checkout)], check=True)
@@ -77,6 +101,8 @@ def refresh(commit: str, repository: str) -> None:
         if VENDOR.exists():
             shutil.rmtree(VENDOR)
         shutil.copytree(source, VENDOR)
+    config["version"] = source_version()
+    CONFIG.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     write_hashes()
 
 
@@ -119,11 +145,12 @@ def main() -> None:
         commit = latest_commit(config["repository"], config.get("branch", "main"))
         write_pinned_config(config, commit)
     if args.refresh:
-        refresh(config["commit"], config["repository"])
+        refresh(config)
     if args.write_hashes:
         write_hashes()
     if args.check or not (args.write_hashes or args.refresh):
         check_hashes()
+        check_manifest_version(config)
     if args.refresh:
         subprocess.run(["python3", str(ROOT / "scripts" / "port.py")], check=True)
 

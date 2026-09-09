@@ -8,6 +8,10 @@
     {
       "name": "custom-agent-toml",
       "description": "Convert the two upstream agent Markdown wrappers to standalone Codex custom-agent TOML files."
+    },
+    {
+      "name": "setup-pstack-toml-example",
+      "description": "Replace the upstream YAML-frontmatter rule sample with a valid TOML semantic role mapping in the generated setup skill."
     }
   ],
   "dynamic_transforms": [
@@ -107,33 +111,38 @@
     },
     {
       "from": "claude-fable-5-1-thinking-max",
-      "to": "pstack.judgment",
-      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+      "to": "gpt-6-astra",
+      "reason": "Map the upstream judgment default to a real Codex model slug."
     },
     {
       "from": "gpt-5.6-sol-max",
-      "to": "pstack.review",
-      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+      "to": "gpt-5.6-sol",
+      "reason": "Map the upstream review default to a real Codex model slug."
     },
     {
       "from": "grok-4.6-fast-xhigh",
-      "to": "pstack.fast",
-      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+      "to": "gpt-5.6-luna",
+      "reason": "Map the upstream fast default to a real Codex model slug."
     },
     {
       "from": "claude-opus-5-thinking-xhigh",
-      "to": "pstack.deep-judgment",
-      "reason": "Use a stable role ID; the concrete Codex model is selected in pstack-models.toml."
+      "to": "gpt-5.6-terra",
+      "reason": "Map the upstream fourth panel default to a real Codex model slug."
     },
     {
       "from": "gpt-4o",
-      "to": "pstack.fast",
-      "reason": "Use a stable role ID for legacy fast-model references."
+      "to": "gpt-5.6-luna",
+      "reason": "Map the legacy fast-model reference to a real Codex model slug."
     },
     {
       "from": "gpt-4",
-      "to": "pstack.fast",
-      "reason": "Use a stable role ID for legacy fast-model references."
+      "to": "gpt-5.6-luna",
+      "reason": "Map the legacy fast-model reference to a real Codex model slug."
+    },
+    {
+      "from": "we renamed `gpt-5.6-luna` to `gpt-5.6-luna` in `encodingForModel`",
+      "to": "we renamed one model slug to another in `encodingForModel`",
+      "reason": "Keep a historical example meaningful after legacy model names are mapped to Codex defaults."
     },
     {
       "from": "subagent_type: \"poteto-agent\"",

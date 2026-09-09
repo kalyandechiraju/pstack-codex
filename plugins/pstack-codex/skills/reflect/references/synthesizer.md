@@ -25,7 +25,7 @@ Drop (implementation details that drift):
 - "linter at SHA `bd91aa7` uses chars/4 heuristic"
 - "`<specific-skill-name>` has 175 tokens at limit 80"
 - "Bugbot flagged regex backtracking on May 2"
-- "we renamed `pstack.fast` to `pstack.fast` in `encodingForModel`"
+- "we renamed one model slug to another in `encodingForModel`"
 
 Keep (durable patterns):
 - "closed regex enums for trigger detection are brittle; prefer schema-validated structures"

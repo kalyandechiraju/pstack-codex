@@ -38,15 +38,15 @@ One message, three subagent calls, `a standard Codex subagent`, explicit `model:
 
 | Lens | `model` | Prompt template |
 |---|---|---|
-| Judgment | your configured reflect-judgment model (default `pstack.judgment`) | `references/judgment-reviewer.md` |
-| Tooling | your configured reflect-tooling model (default `pstack.review`) | `references/tooling-reviewer.md` |
-| Divergent | your configured reflect-judgment model (default `pstack.judgment`) | `references/divergent-reviewer.md` |
+| Judgment | your configured reflect-judgment model (default `gpt-6-astra`) | `references/judgment-reviewer.md` |
+| Tooling | your configured reflect-tooling model (default `gpt-5.6-sol`) | `references/tooling-reviewer.md` |
+| Divergent | your configured reflect-judgment model (default `gpt-6-astra`) | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `task` response body.
 
 ### 3. Synthesize
 
-One subagent call, `a standard Codex subagent`, using your configured reflect-judgment model (default `pstack.judgment`), agent mode (`sandbox_mode = "workspace-write"`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access; readonly strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One subagent call, `a standard Codex subagent`, using your configured reflect-judgment model (default `gpt-6-astra`), agent mode (`sandbox_mode = "workspace-write"`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access; readonly strips MCPs. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 

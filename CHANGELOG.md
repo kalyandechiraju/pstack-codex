@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.8-codex.3 — 2026-09-09
+
+- Replaced synthetic model role IDs with real Codex model slugs and complete
+  semantic TOML role mappings.
+- Synced the upstream manifest version during refresh and added a deterministic
+  compatibility report to scheduled update PRs.
+
 ## 0.14.8-codex.2 — 2026-09-09
 
 - Corrected the Codex manifest interface and skill invocation metadata.
