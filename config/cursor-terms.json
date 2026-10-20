@@ -1,0 +1,27 @@
+{
+  "description": "How the port handles each Cursor-only name in upstream's TERMS list (vendor/cursor-plugins/scripts/generate-pstack-harness-trees.mjs). scripts/check_cursor_terms.py fails when upstream adds a name missing here, or when a translated name survives into the generated package. translated: must not appear in generated Markdown. kept: valid as-is in Codex. gap: known untranslated upstream usage, allowed but reported on every check.",
+  "terms": {
+    "`Task`": {"status": "translated", "reason": "Rewritten to subagent and task vocabulary."},
+    "`AskQuestion`": {"status": "translated", "reason": "Rewritten to request user input."},
+    "todolist": {"status": "kept", "reason": "A todo list is harness-neutral; Codex keeps a plan."},
+    "generalPurpose": {"status": "translated", "reason": "Rewritten to a standard Codex subagent."},
+    "poteto-agent": {"status": "kept", "reason": "The port ships a Codex custom agent with this name."},
+    "comment-sicko": {"status": "kept", "reason": "The port ships a Codex custom agent with this name."},
+    "`readonly: true`": {"status": "gap", "reason": "skills/why still says readonly/Ask mode; needs a Codex sandbox rewrite."},
+    "`environment: \"cloud\"`": {"status": "gap", "reason": "swarm and orchestrate still pass Cursor's cloud environment field; needs a Codex cloud-task or worktree rewrite."},
+    "cloud_base_branch": {"status": "gap", "reason": "swarm still names Cursor's cloud base-branch field."},
+    "`run_in_background: true`": {"status": "translated", "reason": "Rewritten to background Codex task wording."},
+    "`resume`": {"status": "translated", "reason": "Not used by upstream skills yet; add a rewrite before it ships."},
+    "`file_attachments`": {"status": "translated", "reason": "Not used by upstream skills yet; add a rewrite before it ships."},
+    "claude-": {"status": "translated", "reason": "Upstream model slugs map to Codex model slugs."},
+    "grok-": {"status": "translated", "reason": "Upstream model slugs map to Codex model slugs."},
+    "gpt-": {"status": "kept", "reason": "Codex model slugs share this prefix."},
+    "inherit-parent": {"status": "kept", "reason": "The port keeps the alias in pstack-models.toml."},
+    "pstack-models.mdc": {"status": "translated", "reason": "Rewritten to pstack-models.toml."},
+    ".cursor/skills/": {"status": "translated", "reason": "Rewritten to .agents/skills."},
+    "~/.cursor/plugins/": {"status": "translated", "reason": "Rewritten to Codex paths."},
+    ".cursor/rules/": {"status": "translated", "reason": "Rewritten to Codex configuration paths."},
+    "agent-transcripts": {"status": "gap", "reason": "Transcript lookups still name Cursor's agent-transcripts folder; Codex keeps sessions under ~/.codex/sessions."},
+    "Cursor-only features": {"status": "gap", "reason": "Bugbot, cloud agents, and the built-in PR tool are still referenced without Codex wording."}
+  }
+}

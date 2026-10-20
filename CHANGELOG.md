@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.15.29-codex.2 — 2026-10-20
+
+- Defaults move to `gpt-6-luna` (fast roles, `medium`), `gpt-6-astra`
+  (judgment, `xhigh`), and `gpt-6.1-sol` (`reflect_tooling` and the second
+  panel model, `xhigh`). Panels pair astra and sol.
+- The `$setup-pstack` budget keeps fast roles two reasoning steps below
+  judgment roles and panels.
+- Upstream syncs are manual: removed the weekly `upstream-update.yml` workflow.
+- Added `scripts/check_cursor_terms.py`: syncs vendor upstream's `TERMS` list of
+  Cursor names and fail when a name lacks a rewrite or entry in
+  `config/cursor-terms.json`. Runs in CI.
+- README points Claude Code users to upstream pstack.
+- Added `GLOSSARY.md` and ADR 0001 (build-time rewrite over runtime adapter).
+
 ## 0.15.29-codex.1 — 2026-10-20
 
 - Synced upstream pstack `0.15.29` from commit

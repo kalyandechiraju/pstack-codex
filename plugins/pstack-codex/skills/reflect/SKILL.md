@@ -29,7 +29,7 @@ Each reviewer and the synthesizer name a role line in the `pstack-models.toml` r
 | Lens | Role line | Default `model` | Prompt template |
 |---|---|---|---|
 | Judgment | `reflect judgment, divergent, synthesizer` | `gpt-6-astra` | `references/judgment-reviewer.md` |
-| Tooling | `reflect tooling` | `gpt-5.6-luna` | `references/tooling-reviewer.md` |
+| Tooling | `reflect tooling` | `gpt-6.1-sol` | `references/tooling-reviewer.md` |
 | Divergent | `reflect judgment, divergent, synthesizer` | `gpt-6-astra` | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `task` response body.

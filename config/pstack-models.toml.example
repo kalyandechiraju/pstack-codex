@@ -2,30 +2,32 @@
 # Each role is a semantic name used by pstack. Single-model roles use model and
 # reasoning_effort; panel roles use a models array of inline tables.
 # Use inherit-parent or auto as a model value to keep the parent chat model.
-# budget records the reasoning budget setup-pstack applied:
-# unlimited (max), large (xhigh), medium (high), or small (medium).
+# budget records the reasoning budget setup-pstack applied. It sets judgment
+# and panel roles; fast roles sit two steps lower on max > xhigh > high >
+# medium > low, never below low: unlimited (max/high), large (xhigh/medium),
+# medium (high/low), small (medium/low).
 
 budget = "large"
 
 [roles.feature]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.refactoring]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.bug_fix]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.perf_issue]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.hillclimb]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.judgment_and_prose]
 model = "gpt-6-astra"
@@ -36,23 +38,23 @@ model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.how_explorer]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.how_explainer]
 model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.why_investigators]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.why_synthesizer]
 model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.reflect_tooling]
-model = "gpt-5.6-luna"
+model = "gpt-6.1-sol"
 reasoning_effort = "xhigh"
 
 [roles.reflect_judgment]
@@ -70,27 +72,27 @@ reasoning_effort = "xhigh"
 [roles.arena_runners]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.arena_cross_judge_pool]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.swarm_workers]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.architect_runners]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.interrogate_reviewers]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]

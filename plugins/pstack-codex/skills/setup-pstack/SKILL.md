@@ -26,7 +26,7 @@ The default role-to-model mapping is the rule shape shown in step 5 below. If `~
 - `medium — high reasoning`
 - `small — medium reasoning`
 
-**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by model, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the `reasoning_effort` of every role with a real model, panel entries included, to `max`, `xhigh`, `high`, or `medium`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If a model does not support the target effort, use its highest supported effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. `large` keeps the defaults.
+**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by model, list, or alias (`inherit-parent`, `auto`). The ladder is `max` > `xhigh` > `high` > `medium` > `low`. `unlimited`, `large`, `medium`, and `small` set the `reasoning_effort` of every judgment role and every panel entry to `max`, `xhigh`, `high`, or `medium`. Fast roles (`feature`, `refactoring`, `bug_fix`, `perf_issue`, `hillclimb`, `how_explorer`, `why_investigators`, `swarm_workers`) sit two steps lower, never below `low`: `high`, `medium`, `low`, or `low`. If a model does not support the target effort, use its highest supported effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. `large` keeps the defaults.
 
 **(c) Show the roles and confirm.** Show every role with its model, marking any real slug not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer request user input over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena selects one value from it whose model family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
@@ -50,30 +50,32 @@ The default role-to-model mapping is:
 # Each role is a semantic name used by pstack. Single-model roles use model and
 # reasoning_effort; panel roles use a models array of inline tables.
 # Use inherit-parent or auto as a model value to keep the parent chat model.
-# budget records the reasoning budget setup-pstack applied:
-# unlimited (max), large (xhigh), medium (high), or small (medium).
+# budget records the reasoning budget setup-pstack applied. It sets judgment
+# and panel roles; fast roles sit two steps lower on max > xhigh > high >
+# medium > low, never below low: unlimited (max/high), large (xhigh/medium),
+# medium (high/low), small (medium/low).
 
 budget = "large"
 
 [roles.feature]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.refactoring]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.bug_fix]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.perf_issue]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.hillclimb]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.judgment_and_prose]
 model = "gpt-6-astra"
@@ -84,23 +86,23 @@ model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.how_explorer]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.how_explainer]
 model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.why_investigators]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.why_synthesizer]
 model = "gpt-6-astra"
 reasoning_effort = "xhigh"
 
 [roles.reflect_tooling]
-model = "gpt-5.6-luna"
+model = "gpt-6.1-sol"
 reasoning_effort = "xhigh"
 
 [roles.reflect_judgment]
@@ -118,29 +120,29 @@ reasoning_effort = "xhigh"
 [roles.arena_runners]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.arena_cross_judge_pool]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.swarm_workers]
-model = "gpt-5.6-luna"
-reasoning_effort = "xhigh"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.architect_runners]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.interrogate_reviewers]
 models = [
   { model = "gpt-6-astra", reasoning_effort = "xhigh" },
-  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 ```
 
