@@ -42,6 +42,10 @@ permissions—name the boundary you actually want.
 > A source-checked, interactive walkthrough of setup, prompting, new and
 > existing projects, verification, workflows, guardrails, and worked examples.
 
+For the upstream author's operating model, read
+[How the author uses pstack](docs/AUTHOR_WORKFLOW_NOTES.md). It distills Parts 1
+and 2 of Lauren Tan's guide and preserves links to both source posts.
+
 The supplied guide is preserved unchanged from the provided file. It reviews
 upstream **pstack 0.15.0** and uses the original Cursor command and path syntax.
 This repository currently ports the pinned **0.14.8** snapshot to Codex. Use the
