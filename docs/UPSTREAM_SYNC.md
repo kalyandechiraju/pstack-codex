@@ -4,8 +4,8 @@ The repository is pinned to:
 
 - repository: `https://github.com/cursor/plugins.git`
 - path: `pstack`
-- commit: `7314f723a487ec406b6369fe5865ba034cfed166`
-- version: `0.14.8`
+- commit: `88d47514b82e7c44f00f2b2a72ff6dd12158038c`
+- version: `0.15.29`
 
 ## Verify the current archive
 

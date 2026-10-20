@@ -30,6 +30,131 @@
   ],
   "literal_replacements": [
     {
+      "from": "\n\nin claude code:\n\n```bash\n/plugin marketplace add cursor/plugins\n/plugin install pstack@cursor-plugins\n```\n\nclaude code prefixes plugin commands and agents, so `/poteto-mode` is `/pstack:poteto-mode`. the [claude code adapter](./docs/harness/claude-code.md) maps every other cursor name. in claude code, `/pstack:setup-pstack` writes your model choices to `~/.claude/rules/pstack-models.md`, and a step that needs a cursor-only feature, such as bugbot or automations, is skipped with a one-line note.\n\nclaude code installs a generated copy of pstack, including this readme and the guide, from [`harness/pstack/`](https://github.com/cursor/plugins/tree/main/harness/pstack) at the repository root. after you change pstack, run `node scripts/generate-pstack-harness-trees.mjs` from the repository root and commit the result. ci fails while the generated copy is out of date.",
+      "to": "",
+      "reason": "Drop the upstream Claude Code install path; it installs the Cursor package, not this port."
+    },
+    {
+      "from": "out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix, perf, hillclimb) go to grok, while the hardest changes, prose, and judgment go to opus 5.5. the default panel is opus 5.5 / grok.",
+      "to": "out of the box the mode splits work by role: code delegates (feature, refactoring, bug fix, perf, hillclimb) use the configured fast model, while the hardest changes, prose, and judgment use the configured judgment model. the default panel pairs the judgment and fast models.",
+      "reason": "Replace upstream model-family prose with the role-based Codex configuration."
+    },
+    {
+      "from": "to keep [`/poteto-mode`](./skills/poteto-mode/SKILL.md) on across turns, pick it from the `/` menu and press option+enter (mac) or alt+enter (windows) instead of enter. that makes it a [custom mode](https://cursor.com/docs/skills#using-a-skill-as-a-custom-mode), which cursor offers in the agents window and the cli. it stays in context every turn until you exit the mode. plain enter attaches it to one message only.",
+      "to": "to keep [`/poteto-mode`](./skills/poteto-mode/SKILL.md) on, start each new task with it.",
+      "reason": "Custom Modes are a Cursor feature; describe the portable way to keep the mode on."
+    },
+    {
+      "from": "\n\nIn Claude Code, run `/plugin marketplace add cursor/plugins`, then `/plugin install pstack@cursor-plugins`. Claude Code prefixes plugin commands, so each command in this guide takes a `pstack:` prefix there, such as `/pstack:setup-pstack`, which writes its model rule to `~/.claude/rules/pstack-models.md`. The [Claude Code adapter](../harness/claude-code.md) covers the other differences.",
+      "to": "",
+      "reason": "Drop the upstream Claude Code install path; it installs the Cursor package, not this port."
+    },
+    {
+      "from": "`unlimited` lifts each model to its highest tier, up to `max`. Opus goes to `max`. Grok tops out at `xhigh`, so it stays there.",
+      "to": "`unlimited` lifts each model to its highest supported reasoning effort, up to `max`. A model that tops out at `xhigh` stays there.",
+      "reason": "Describe the budget ladder by reasoning effort instead of upstream model families."
+    },
+    {
+      "from": "To keep `/poteto-mode` on for the whole chat, pick it from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) instead of Enter. That makes it a [Custom Mode](https://cursor.com/docs/skills#using-a-skill-as-a-custom-mode), which stays in context on every turn until you exit it. Custom Modes are available in the Agents Window and the CLI. Plain Enter attaches the skill to one message, and it fades as the chat moves on.",
+      "to": "To keep `/poteto-mode` on, start each new task with it.",
+      "reason": "Custom Modes are a Cursor feature; describe the portable way to keep the mode on."
+    },
+    {
+      "from": "and a Custom Mode keeps `/poteto-mode` in context on every turn. [Set up pstack](./01-setup.md#run-your-first-task) shows how to start one.",
+      "to": "and `/poteto-mode` keeps it applied to the task. [Set up pstack](./01-setup.md#run-your-first-task) shows how to start a task.",
+      "reason": "Custom Modes are a Cursor feature."
+    },
+    {
+      "from": "The cleanest isolation is a [cloud subagent](https://cursor.com/docs/subagents#cloud-subagents). Each one gets its own VM and branch, so it can install dependencies, run your app, and record video of the result without touching your machine. Type `/in-cloud` before the task, or ask the parent chat to hand work to cloud subagents.",
+      "to": "The cleanest isolation is a separate Git worktree or a Codex cloud task for each agent, so each one gets its own working tree and branch.",
+      "reason": "Cursor cloud subagents and `/in-cloud` do not exist in Codex."
+    },
+    {
+      "from": "A [Cursor Project](https://cursor.com/blog/projects) gives one coordinator agent a persistent thread.",
+      "to": "A long-lived coordinator thread gives one coordinator agent persistent context.",
+      "reason": "Cursor Projects do not exist in Codex."
+    },
+    {
+      "from": ", and mention once that a Custom Mode keeps it on.",
+      "to": ".",
+      "reason": "Custom Modes are a Cursor feature."
+    },
+    {
+      "from": "https://github.com/cursor/plugins/blob/main/pstack/",
+      "to": "https://github.com/kalyandechiraju/pstack-codex/blob/main/plugins/pstack-codex/",
+      "reason": "Point public file links at the generated package in this repository."
+    },
+    {
+      "from": "pstack is built for Cursor, and it also installs in Claude Code with `/plugin marketplace add cursor/plugins`, then `/plugin install pstack@cursor-plugins`. There, each command takes a `pstack:` prefix, such as `/pstack:poteto-mode`. The [Claude Code adapter](../../docs/harness/claude-code.md) maps the Cursor names, and a step that needs a Cursor-only feature, such as Bugbot or Automations, is skipped with a one-line note.",
+      "to": "This port of pstack is built for Codex.",
+      "reason": "Drop the upstream Cursor and Claude Code install paths."
+    },
+    {
+      "from": "spawn Cursor subagents with per-role models, and Custom Modes and `/loop` are Cursor features, so those parts may not work there.",
+      "to": "spawn Codex subagents with per-role models, so those parts may not work there.",
+      "reason": "Custom Modes and `/loop` are Cursor features."
+    },
+    {
+      "from": "Whether `/poteto-mode` stays on depends on how the user starts it:\n\n- Enter on `/poteto-mode` attaches the skill to one message. It fades as the chat moves on.\n- Option+Enter on Mac or Alt+Enter on Windows, or Use as Mode from the skill entry, makes it a Custom Mode. It stays in context every turn until the user exits the mode, and it stays out of casual turns.\n- Cursor's docs list Custom Modes in the Agents Window and the CLI. Elsewhere, start each new task with `/poteto-mode`.",
+      "to": "To keep `/poteto-mode` on, start each new task with it.",
+      "reason": "Custom Modes are a Cursor feature."
+    },
+    {
+      "from": "Link [Cursor's skills docs](https://cursor.com/docs/skills) when this comes up. ",
+      "to": "",
+      "reason": "Avoid linking Cursor product docs from the Codex port."
+    },
+    {
+      "from": "It was started with Enter. Start it as a Custom Mode, or start each task with `/poteto-mode`.",
+      "to": "Start each task with `/poteto-mode`.",
+      "reason": "Custom Modes are a Cursor feature."
+    },
+    {
+      "from": "Otherwise use standard speed, the same slug without `-fast`.",
+      "to": "Otherwise use standard speed.",
+      "reason": "Codex sets speed outside the model slug."
+    },
+    {
+      "from": "Change only the effort level and whether the slug is fast, and keep the family the role names, so a diverse panel stays diverse. If the family has no slug at that level and speed, use its nearest slug.",
+      "to": "Change only the reasoning effort and speed, and keep the model the role names, so a diverse panel stays diverse. If the model does not support that effort, use its nearest supported effort.",
+      "reason": "Codex sets reasoning effort separately from the model slug."
+    },
+    {
+      "from": "If the Task tool rejects the adjusted slug, do not try another adjusted slug.",
+      "to": "If the Task tool rejects the adjusted setting, do not try another adjusted setting.",
+      "reason": "Codex sets reasoning effort separately from the model slug."
+    },
+    {
+      "from": "Families go by prefix: `claude-*`, and `grok-*` with `cursor-grok-*` and `composer-*`. A refused `composer-*` entry runs on Reviewer B's default.",
+      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-5.6-*`.",
+      "reason": "Replace upstream model families with Codex model families."
+    },
+    {
+      "from": "**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by family, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the effort token of every real slug, panel entries included, to `max`, `xhigh`, `high`, or `medium`. The effort token is the last token, or the one before a trailing `fast`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If the result is not a detected slug, use the same family's detected slug with the highest effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. So `unlimited` turns `claude-opus-5-5-xhigh` into `claude-opus-5-5-max`. Grok slugs top out at `xhigh`, so under `unlimited` the fallback puts Grok at `xhigh` and keeps `grok-4.7-xhigh-fast` as it is. `large` keeps both defaults. `small` turns them into `claude-opus-5-5-medium` and `grok-4.7-medium-fast`.",
+      "to": "**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by model, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the `reasoning_effort` of every role with a real model, panel entries included, to `max`, `xhigh`, `high`, or `medium`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If a model does not support the target effort, use its highest supported effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. `large` keeps the defaults.",
+      "reason": "Codex sets reasoning effort in a TOML field instead of a slug suffix."
+    },
+    {
+      "from": "treat its `# budget` line and its role values",
+      "to": "treat its `budget` value and its role tables",
+      "reason": "The generated configuration file is TOML."
+    },
+    {
+      "from": "Families go by prefix: `claude-*`, and `grok-*` with `cursor-grok-*` and `composer-*`. A refused `composer-*` entry runs on `grok-4.7-xhigh-fast`.",
+      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-5.6-*`.",
+      "reason": "Replace upstream model families with Codex model families."
+    },
+    {
+      "from": "claude-opus-5-5-xhigh",
+      "to": "gpt-6-astra",
+      "reason": "Map the upstream judgment default to a real Codex model slug."
+    },
+    {
+      "from": "grok-4.7-xhigh-fast",
+      "to": "gpt-5.6-luna",
+      "reason": "Map the upstream fast default to a real Codex model slug."
+    },
+    {
       "from": "writes an always-applied rule",
       "to": "writes a pstack model configuration file",
       "reason": "Codex does not auto-apply arbitrary pstack TOML; the pstack skills read this shared configuration explicitly."
@@ -45,11 +170,6 @@
       "reason": "Describe the explicit pstack configuration lookup rather than implying native Codex rule discovery."
     },
     {
-      "from": "https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack",
-      "to": "https://github.com/kalyandechiraju/pstack-codex",
-      "reason": "Point generated metadata at this port while preserving the upstream commit in config/upstream.json."
-    },
-    {
       "from": "https://github.com/cursor/plugins",
       "to": "https://github.com/kalyandechiraju/pstack-codex",
       "reason": "Avoid shipping an install link that points at the source marketplace."
@@ -63,11 +183,6 @@
       "from": "worked with millions of lines of code at Meta, Netflix, and Cursor",
       "to": "worked with millions of lines of code at Meta, Netflix, and other large engineering teams",
       "reason": "Avoid attributing the upstream author's employer history to the Codex port."
-    },
-    {
-      "from": "out of the box the mode splits work by model strength: precisely-specified code, prose, and judgment go to fable 5.1, while fast mechanical code goes to grok. the default panel is fable 5.1 / sol / grok / opus 5.",
-      "to": "out of the box the mode splits work by role: precisely-specified code, prose, and judgment use the configured judgment role, while fast mechanical code uses the configured fast role. the default panel uses the configured Codex role set.",
-      "reason": "Replace upstream model-family prose with the role-based Codex configuration."
     },
     {
       "from": "cursor-team-kit",
@@ -123,26 +238,6 @@
       "from": "/loop",
       "to": "heartbeat",
       "reason": "Codex uses task heartbeats and automations instead of the upstream command."
-    },
-    {
-      "from": "claude-fable-5-1-thinking-max",
-      "to": "gpt-6-astra",
-      "reason": "Map the upstream judgment default to a real Codex model slug."
-    },
-    {
-      "from": "gpt-5.6-sol-max",
-      "to": "gpt-5.6-sol",
-      "reason": "Map the upstream review default to a real Codex model slug."
-    },
-    {
-      "from": "grok-4.6-fast-xhigh",
-      "to": "gpt-5.6-luna",
-      "reason": "Map the upstream fast default to a real Codex model slug."
-    },
-    {
-      "from": "claude-opus-5-thinking-xhigh",
-      "to": "gpt-5.6-terra",
-      "reason": "Map the upstream fourth panel default to a real Codex model slug."
     },
     {
       "from": "gpt-4o",

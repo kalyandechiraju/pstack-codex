@@ -1,6 +1,6 @@
 pstack for Codex includes content from Lauren Tan's pstack plugin, vendored
-from cursor/plugins commit 7314f723a487ec406b6369fe5865ba034cfed166
-(version 0.14.8).
+from cursor/plugins commit 88d47514b82e7c44f00f2b2a72ff6dd12158038c
+(version 0.15.29).
 
 The upstream content is Copyright (c) 2026 Lauren Tan and is distributed under
 the MIT License. The complete upstream license is in

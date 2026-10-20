@@ -35,113 +35,105 @@ TEXT_SUFFIXES = {
 
 SETUP_PSTACK_PATH = Path("skills/setup-pstack/SKILL.md")
 
+# Upstream ships a generic plugin.json and a Claude Code adapter doc. Neither
+# applies to the Codex package, which has its own manifest.
+SKIPPED_SOURCE_FILES = {Path(".cursor-plugin/plugin.json"), Path("plugin.json")}
+
 MODEL_CONFIG_EXAMPLE = """# Copy this file to ~/.codex/pstack-models.toml or .codex/pstack-models.toml.
 # Each role is a semantic name used by pstack. Single-model roles use model and
 # reasoning_effort; panel roles use a models array of inline tables.
 # Use inherit-parent or auto as a model value to keep the parent chat model.
+# budget records the reasoning budget setup-pstack applied:
+# unlimited (max), large (xhigh), medium (high), or small (medium).
+
+budget = "large"
 
 [roles.feature]
 model = "gpt-5.6-luna"
-reasoning_effort = "medium"
+reasoning_effort = "xhigh"
 
 [roles.refactoring]
 model = "gpt-5.6-luna"
-reasoning_effort = "medium"
+reasoning_effort = "xhigh"
 
 [roles.bug_fix]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-5.6-luna"
+reasoning_effort = "xhigh"
 
 [roles.perf_issue]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-5.6-luna"
+reasoning_effort = "xhigh"
 
 [roles.hillclimb]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-5.6-luna"
+reasoning_effort = "xhigh"
 
 [roles.judgment_and_prose]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.hardest_tasks]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.how_explorer]
 model = "gpt-5.6-luna"
-reasoning_effort = "medium"
+reasoning_effort = "xhigh"
 
 [roles.how_explainer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
-
-[roles.how_critics]
-models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
-]
+reasoning_effort = "xhigh"
 
 [roles.why_investigators]
 model = "gpt-5.6-luna"
-reasoning_effort = "medium"
+reasoning_effort = "xhigh"
 
 [roles.why_synthesizer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_tooling]
-model = "gpt-5.6-sol"
-reasoning_effort = "medium"
+model = "gpt-5.6-luna"
+reasoning_effort = "xhigh"
 
 [roles.reflect_judgment]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_divergent]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_synthesizer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.arena_runners]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
 ]
 
 [roles.arena_cross_judge_pool]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
 ]
 
 [roles.swarm_workers]
 model = "gpt-5.6-luna"
-reasoning_effort = "medium"
+reasoning_effort = "xhigh"
 
 [roles.architect_runners]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
 ]
 
 [roles.interrogate_reviewers]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-5.6-luna", reasoning_effort = "xhigh" }
 ]
 """
 
@@ -207,9 +199,10 @@ def rewrite_setup_pstack_example(value: str) -> str:
         raise ValueError("setup-pstack example markers are missing")
     replacement = (
         "### 5. Write the rule\n\n"
-        "Write `~/.codex/pstack-models.toml` as a valid TOML file. Each semantic role\n"
-        "has a table under `[roles]`; single-model roles use `model` and\n"
-        "`reasoning_effort`, while panel roles use a `models` array of inline tables.\n"
+        "Write `~/.codex/pstack-models.toml` as a valid TOML file. Record the chosen\n"
+        "budget label in a top-level `budget` key. Each semantic role has a table\n"
+        "under `[roles]`; single-model roles use `model` and `reasoning_effort`, while\n"
+        "panel roles use a `models` array of inline tables.\n"
         "Use `inherit-parent` or `auto` as a model value when the role should run on\n"
         "the parent chat model. Overwrite the whole file so reruns stay idempotent.\n\n"
         "The default role-to-model mapping is:\n\n"
@@ -273,7 +266,7 @@ def copy_source_tree(skill_names: list[str], rules: dict[str, Any]) -> None:
 
     for source in sorted(SOURCE.rglob("*")):
         relative = source.relative_to(SOURCE)
-        if relative == Path(".cursor-plugin/plugin.json"):
+        if relative in SKIPPED_SOURCE_FILES or relative.parts[:2] == ("docs", "harness"):
             continue
         if relative.parts[:1] == ("agents",) and source.suffix == ".md":
             continue

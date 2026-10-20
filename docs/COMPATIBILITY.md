@@ -18,13 +18,19 @@ diffing; the generated package receives the transforms below.
 | Cursor agent Markdown | standalone Codex custom-agent TOML |
 | Cursor `/loop` wake command | Codex heartbeat/automation wording |
 | `disable-model-invocation: true` | `disable-model-invocation: false` so Codex can invoke copied skills |
+| Cursor Custom Modes, cloud subagents, Projects | portable wording: start each task with `$poteto-mode`, use worktrees or Codex cloud tasks |
+| upstream Claude Code install and `docs/harness/claude-code.md` | omitted from the Codex package |
+| upstream root `plugin.json` | omitted; the package ships `.codex-plugin/plugin.json` |
 
 ## Model roles
 
 The generated skills use real Codex model slugs in their defaults: `gpt-5.6-luna`
-for fast work, `gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and
-`gpt-5.6-terra` as the fourth panel model. A user can override each semantic
-role and its reasoning effort in `~/.codex/pstack-models.toml` or
+for fast work and `gpt-6-astra` for judgment, mirroring upstream's two-family
+defaults. Review panels pair the two models. Upstream encodes reasoning effort
+in the model slug (`claude-opus-5-5-xhigh`); the port keeps the slug plain and
+sets `reasoning_effort` per role instead, with the `$setup-pstack` budget
+(`unlimited`, `large`, `medium`, `small`) recorded as a top-level `budget` key.
+A user can override each semantic role and its reasoning effort in `~/.codex/pstack-models.toml` or
 `.codex/pstack-models.toml`; panel roles use arrays of inline TOML tables. The
 starter file is [`config/pstack-models.toml.example`](../config/pstack-models.toml.example),
 and `$setup-pstack` writes the same valid TOML shape. There are no synthetic

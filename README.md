@@ -5,7 +5,7 @@
   Investigate deeply, choose the right playbook, delegate deliberately, and finish with evidence.</p>
 
   [![Validate](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml/badge.svg)](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml)
-  [![Upstream pstack](https://img.shields.io/badge/upstream-0.14.8-6D5AE6)](https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack)
+  [![Upstream pstack](https://img.shields.io/badge/upstream-0.15.29-6D5AE6)](https://github.com/cursor/plugins/tree/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack)
   [![License: MIT](https://img.shields.io/badge/license-MIT-2D9D78)](LICENSE)
 
   [Install](#install) · [Learn pstack](#learn-pstack) · [See the translation](#from-cursor-to-codex) · [Develop the port](#development)
@@ -48,7 +48,7 @@ and 2 of Lauren Tan's guide and preserves links to both source posts.
 
 The supplied guide is preserved unchanged from the provided file. It reviews
 upstream **pstack 0.15.0** and uses the original Cursor command and path syntax.
-This repository currently ports the pinned **0.14.8** snapshot to Codex. Use the
+This repository currently ports the pinned **0.15.29** snapshot to Codex. Use the
 translation below when following it here.
 
 ### The useful mental model
@@ -102,9 +102,9 @@ workspace paths, model roles, and agent manifests for Codex.
 | Cursor model rules | `~/.codex/pstack-models.toml` |
 
 The generated defaults use real Codex model slugs: `gpt-5.6-luna` for fast
-work, `gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and
-`gpt-5.6-terra` for the fourth panel. `$setup-pstack` writes semantic role
-tables and panel arrays as valid TOML; see
+work and `gpt-6-astra` for judgment, both at `xhigh` reasoning (the `large`
+budget). Review panels pair the two. `$setup-pstack` writes semantic role
+tables, panel arrays, and the chosen budget as valid TOML; see
 [`config/pstack-models.toml.example`](config/pstack-models.toml.example).
 
 ## Install

@@ -1,6 +1,6 @@
 {
   "name": "pstack-codex",
-  "version": "0.14.8",
+  "version": "0.15.29",
   "description": "Rigorous, parallelizable engineering workflows for Codex.",
   "author": {
     "name": "Lauren Tan"
