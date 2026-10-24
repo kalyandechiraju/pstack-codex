@@ -27,7 +27,7 @@ two steps:
 
 new here? the [pstack guide](./docs/guide/README.md) walks you through a first real task, from setup and prompting through verification and overnight runs. stuck, or unsure which skill fits? ask [`$poteto-help`](./skills/poteto-help/SKILL.md).
 
-that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box the mode splits work by role: code delegates (feature, refactoring, bug fix, perf, hillclimb) use the configured fast model, while the hardest changes, prose, and judgment use the configured judgment model. the default panel pairs the judgment and fast models. [`$setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
+that's it. the other skills are situational, and the mode skill uses them for you as needed. out of the box the mode splits work by role: code delegates (feature, refactoring, bug fix, perf, hillclimb) use the configured fast model, while the hardest changes, prose, and judgment use the configured judgment model. the default panel pairs the judgment and review models. [`$setup-pstack`](./skills/setup-pstack/SKILL.md) changes any of it.
 
 ## usage
 

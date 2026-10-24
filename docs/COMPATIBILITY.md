@@ -22,11 +22,24 @@ diffing; the generated package receives the transforms below.
 | upstream Claude Code install and `docs/harness/claude-code.md` | omitted from the Codex package |
 | upstream root `plugin.json` | omitted; the package ships `.codex-plugin/plugin.json` |
 
+## Cursor name coverage
+
+Upstream keeps a `TERMS` list of every Cursor-only name its skills use, in
+`scripts/generate-pstack-harness-trees.mjs`. A sync vendors that file, and
+`scripts/check_cursor_terms.py` matches it against
+[`config/cursor-terms.json`](../config/cursor-terms.json). Each name is
+`translated` (must not appear in the generated package), `kept` (valid in Codex),
+or `gap` (known untranslated usage, reported on every run). The check fails on a
+name upstream adds that the config does not list, and on a `translated` name that
+leaks into the package.
+
 ## Model roles
 
-The generated skills use real Codex model slugs in their defaults: `gpt-5.6-luna`
-for fast work and `gpt-6-astra` for judgment, mirroring upstream's two-family
-defaults. Review panels pair the two models. Upstream encodes reasoning effort
+The generated skills use real Codex model slugs in their defaults: `gpt-6-luna`
+for fast roles, `gpt-6-astra` for judgment roles, and `gpt-6.1-sol` for
+`reflect_tooling` and as the second panel model beside `gpt-6-astra`. Fast roles
+sit two reasoning steps below judgment roles and panels (`medium` versus `xhigh`
+under the default `large` budget). Upstream encodes reasoning effort
 in the model slug (`claude-opus-5-5-xhigh`); the port keeps the slug plain and
 sets `reasoning_effort` per role instead, with the `$setup-pstack` budget
 (`unlimited`, `large`, `medium`, `small`) recorded as a top-level `budget` key.

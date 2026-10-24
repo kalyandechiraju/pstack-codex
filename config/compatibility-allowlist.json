@@ -36,7 +36,7 @@
     },
     {
       "from": "out of the box the mode splits work by model strength: code delegates (feature, refactoring, bug fix, perf, hillclimb) go to grok, while the hardest changes, prose, and judgment go to opus 5.5. the default panel is opus 5.5 / grok.",
-      "to": "out of the box the mode splits work by role: code delegates (feature, refactoring, bug fix, perf, hillclimb) use the configured fast model, while the hardest changes, prose, and judgment use the configured judgment model. the default panel pairs the judgment and fast models.",
+      "to": "out of the box the mode splits work by role: code delegates (feature, refactoring, bug fix, perf, hillclimb) use the configured fast model, while the hardest changes, prose, and judgment use the configured judgment model. the default panel pairs the judgment and review models.",
       "reason": "Replace upstream model-family prose with the role-based Codex configuration."
     },
     {
@@ -126,12 +126,12 @@
     },
     {
       "from": "Families go by prefix: `claude-*`, and `grok-*` with `cursor-grok-*` and `composer-*`. A refused `composer-*` entry runs on Reviewer B's default.",
-      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-5.6-*`.",
+      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-6.1-*`.",
       "reason": "Replace upstream model families with Codex model families."
     },
     {
       "from": "**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by family, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the effort token of every real slug, panel entries included, to `max`, `xhigh`, `high`, or `medium`. The effort token is the last token, or the one before a trailing `fast`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If the result is not a detected slug, use the same family's detected slug with the highest effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. So `unlimited` turns `claude-opus-5-5-xhigh` into `claude-opus-5-5-max`. Grok slugs top out at `xhigh`, so under `unlimited` the fallback puts Grok at `xhigh` and keeps `grok-4.7-xhigh-fast` as it is. `large` keeps both defaults. `small` turns them into `claude-opus-5-5-medium` and `grok-4.7-medium-fast`.",
-      "to": "**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by model, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the `reasoning_effort` of every role with a real model, panel entries included, to `max`, `xhigh`, `high`, or `medium`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If a model does not support the target effort, use its highest supported effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. `large` keeps the defaults.",
+      "to": "**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by model, list, or alias (`inherit-parent`, `auto`). The ladder is `max` > `xhigh` > `high` > `medium` > `low`. `unlimited`, `large`, `medium`, and `small` set the `reasoning_effort` of every judgment role and every panel entry to `max`, `xhigh`, `high`, or `medium`. Fast roles (`feature`, `refactoring`, `bug_fix`, `perf_issue`, `hillclimb`, `how_explorer`, `why_investigators`, `swarm_workers`) sit two steps lower, never below `low`: `high`, `medium`, `low`, or `low`. If a model does not support the target effort, use its highest supported effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. `large` keeps the defaults.",
       "reason": "Codex sets reasoning effort in a TOML field instead of a slug suffix."
     },
     {
@@ -141,8 +141,33 @@
     },
     {
       "from": "Families go by prefix: `claude-*`, and `grok-*` with `cursor-grok-*` and `composer-*`. A refused `composer-*` entry runs on `grok-4.7-xhigh-fast`.",
-      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-5.6-*`.",
+      "to": "Families go by slug prefix, such as `gpt-6-*` and `gpt-6.1-*`.",
       "reason": "Replace upstream model families with Codex model families."
+    },
+    {
+      "from": "`claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`",
+      "to": "`gpt-6-astra` and `gpt-6.1-sol`",
+      "reason": "Codex panels pair the judgment and review models."
+    },
+    {
+      "from": "| Reviewer B | `grok-4.7-xhigh-fast` |",
+      "to": "| Reviewer B | `gpt-6.1-sol` |",
+      "reason": "Codex panels pair the judgment and review models."
+    },
+    {
+      "from": "| Tooling | `reflect tooling` | `grok-4.7-xhigh-fast` |",
+      "to": "| Tooling | `reflect tooling` | `gpt-6.1-sol` |",
+      "reason": "Reflect tooling uses the Codex review model."
+    },
+    {
+      "from": "The defaults run at `xhigh` reasoning, the same as the `large` budget.",
+      "to": "The defaults are the `large` budget: `xhigh` reasoning for judgment roles and panels, and `medium` for fast roles, which sit two steps lower.",
+      "reason": "The Codex budget ladder keeps fast roles two steps below judgment and panel roles."
+    },
+    {
+      "from": "The `/setup-pstack` budget sets each role's starting level, xhigh by default.",
+      "to": "The `/setup-pstack` budget sets each role's starting level: xhigh for judgment roles and panels and medium for fast roles by default.",
+      "reason": "The Codex budget ladder keeps fast roles two steps below judgment and panel roles."
     },
     {
       "from": "claude-opus-5-5-xhigh",
@@ -151,7 +176,7 @@
     },
     {
       "from": "grok-4.7-xhigh-fast",
-      "to": "gpt-5.6-luna",
+      "to": "gpt-6-luna",
       "reason": "Map the upstream fast default to a real Codex model slug."
     },
     {
@@ -241,16 +266,16 @@
     },
     {
       "from": "gpt-4o",
-      "to": "gpt-5.6-luna",
+      "to": "gpt-6-luna",
       "reason": "Map the legacy fast-model reference to a real Codex model slug."
     },
     {
       "from": "gpt-4",
-      "to": "gpt-5.6-luna",
+      "to": "gpt-6-luna",
       "reason": "Map the legacy fast-model reference to a real Codex model slug."
     },
     {
-      "from": "we renamed `gpt-5.6-luna` to `gpt-5.6-luna` in `encodingForModel`",
+      "from": "we renamed `gpt-6-luna` to `gpt-6-luna` in `encodingForModel`",
       "to": "we renamed one model slug to another in `encodingForModel`",
       "reason": "Keep a historical example meaningful after legacy model names are mapped to Codex defaults."
     },

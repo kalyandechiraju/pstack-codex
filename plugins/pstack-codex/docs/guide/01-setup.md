@@ -22,7 +22,7 @@ $setup-pstack
 
 [`$setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `~/.codex/pstack-models.toml`, a small rule every pstack skill reads.
 
-The defaults run at `xhigh` reasoning, the same as the `large` budget. `unlimited` lifts each model to its highest supported reasoning effort, up to `max`. A model that tops out at `xhigh` stays there. `medium` and `small` lower the reasoning and spend fewer tokens.
+The defaults are the `large` budget: `xhigh` reasoning for judgment roles and panels, and `medium` for fast roles, which sit two steps lower. `unlimited` lifts each model to its highest supported reasoning effort, up to `max`. A model that tops out at `xhigh` stays there. `medium` and `small` lower the reasoning and spend fewer tokens.
 
 You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default, delete that role's line. A rerun of `$setup-pstack` keeps any role whose model differs from the default. When a default changes, a rule written before the change still pins the old default, so delete those role lines, or delete the file, then run `$setup-pstack` again.
 

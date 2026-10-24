@@ -170,3 +170,4 @@ bf2661f1a81c37700884a45b77d6289be0c802b065febced31990e6564510839  vendor/cursor-
 2d4f83048eac1df530b399e2aed75dd7c9c18577b7665420aaeb96d0ceb0b702  vendor/cursor-plugins/pstack/skills/why/references/sources/sentry.md
 3bc6309f5c7b26ace3b919dbd7f7b048861dd2020f910fe24f656cc74b3b661c  vendor/cursor-plugins/pstack/skills/why/references/sources/slack.md
 11c62671aa7b7a6e3d36929ffe2b59bf95e6ca664eee4d93e6ee527dd3390ddb  vendor/cursor-plugins/pstack/skills/why/references/synthesizer-prompt.md
+d158bb93afd0c67dffbf5a43592ca3958bc541c8664bb1a80bbca74827abda86  vendor/cursor-plugins/scripts/generate-pstack-harness-trees.mjs

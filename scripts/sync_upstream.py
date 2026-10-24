@@ -17,10 +17,14 @@ CONFIG = ROOT / "config" / "upstream.json"
 VENDOR = ROOT / "vendor" / "cursor-plugins" / "pstack"
 HASHES = ROOT / "config" / "hashes" / "upstream.sha256"
 SOURCE_MANIFEST = VENDOR / ".cursor-plugin" / "plugin.json"
+# Upstream's harness generator holds its maintained list of Cursor-only names.
+# check_cursor_terms.py reads it, so new upstream names fail the sync.
+TERMS_SOURCE = "scripts/generate-pstack-harness-trees.mjs"
+TERMS_VENDOR = ROOT / "vendor" / "cursor-plugins" / TERMS_SOURCE
 
 
 def tracked_files() -> list[Path]:
-    return [path for path in sorted(VENDOR.rglob("*")) if path.is_file()]
+    return [path for path in sorted(VENDOR.rglob("*")) if path.is_file()] + [TERMS_VENDOR]
 
 
 def digest(path: Path) -> str:
@@ -86,7 +90,7 @@ def refresh(config: dict[str, object]) -> None:
         subprocess.run(["git", "clone", "--filter=blob:none", repository, str(checkout)], check=True)
         subprocess.run(["git", "-C", str(checkout), "fetch", "--depth", "1", "origin", commit], check=True)
         archive = subprocess.run(
-            ["git", "-C", str(checkout), "archive", "--format=tar", commit, "pstack"],
+            ["git", "-C", str(checkout), "archive", "--format=tar", commit, "pstack", TERMS_SOURCE],
             check=True,
             stdout=subprocess.PIPE,
         ).stdout
@@ -101,6 +105,8 @@ def refresh(config: dict[str, object]) -> None:
         if VENDOR.exists():
             shutil.rmtree(VENDOR)
         shutil.copytree(source, VENDOR)
+        TERMS_VENDOR.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(unpacked / TERMS_SOURCE, TERMS_VENDOR)
     config["version"] = source_version()
     CONFIG.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     write_hashes()
@@ -153,6 +159,7 @@ def main() -> None:
         check_manifest_version(config)
     if args.refresh:
         subprocess.run(["python3", str(ROOT / "scripts" / "port.py")], check=True)
+        subprocess.run(["python3", str(ROOT / "scripts" / "check_cursor_terms.py")], check=True)
 
 
 if __name__ == "__main__":

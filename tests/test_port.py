@@ -145,9 +145,26 @@ class PortTests(unittest.TestCase):
         }
         self.assertEqual(set(roles), expected_roles)
         self.assertEqual(config["budget"], "large")
-        self.assertEqual(roles["feature"]["model"], "gpt-5.6-luna")
-        self.assertEqual(roles["reflect_tooling"]["model"], "gpt-5.6-luna")
-        self.assertEqual(roles["judgment_and_prose"]["model"], "gpt-6-astra")
+        fast_roles = {
+            "feature",
+            "refactoring",
+            "bug_fix",
+            "perf_issue",
+            "hillclimb",
+            "how_explorer",
+            "why_investigators",
+            "swarm_workers",
+        }
+        for name, role in roles.items():
+            if "models" in role:
+                continue
+            with self.subTest(role=name):
+                if name in fast_roles:
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6-luna", "medium"))
+                elif name == "reflect_tooling":
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6.1-sol", "xhigh"))
+                else:
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6-astra", "xhigh"))
         for panel_name in (
             "arena_runners",
             "arena_cross_judge_pool",
@@ -155,7 +172,11 @@ class PortTests(unittest.TestCase):
             "interrogate_reviewers",
         ):
             panel = roles[panel_name]["models"]
-            self.assertEqual([entry["model"] for entry in panel], ["gpt-6-astra", "gpt-5.6-luna"], panel_name)
+            self.assertEqual(
+                [(entry["model"], entry["reasoning_effort"]) for entry in panel],
+                [("gpt-6-astra", "xhigh"), ("gpt-6.1-sol", "xhigh")],
+                panel_name,
+            )
 
         setup = (DESTINATION / "skills/setup-pstack/SKILL.md").read_text(encoding="utf-8")
         match = re.search(r"```toml\n(.*?)```", setup, re.DOTALL)
@@ -172,7 +193,7 @@ class PortTests(unittest.TestCase):
         )
         self.assertIsNone(forbidden.search(generated_text))
         self.assertNotIn("always-applied", generated_text)
-        for slug in ("gpt-5.6-luna", "gpt-6-astra"):
+        for slug in ("gpt-6-luna", "gpt-6-astra", "gpt-6.1-sol"):
             self.assertIn(slug, generated_text)
 
     def test_manifest_is_codex_shaped(self) -> None:
@@ -188,22 +209,22 @@ class PortTests(unittest.TestCase):
         self.assertEqual(marketplace["plugins"][0]["source"]["path"], "./plugins/pstack-codex")
         self.assertEqual(marketplace, json.loads((ROOT / "marketplace.json").read_text()))
 
-    def test_ci_is_pinned_and_upstream_job_only_opens_prs(self) -> None:
+    def test_ci_is_pinned_and_syncs_are_manual(self) -> None:
+        workflows = sorted(path.name for path in (ROOT / ".github/workflows").iterdir())
+        self.assertEqual(workflows, ["validate.yml"])
         validate_workflow = (ROOT / ".github/workflows/validate.yml").read_text()
-        update_workflow = (ROOT / ".github/workflows/upstream-update.yml").read_text()
-        for workflow in (validate_workflow, update_workflow):
-            self.assertNotRegex(workflow, r"actions/(checkout|setup-python)@v")
-            self.assertRegex(
-                workflow,
-                r"actions/(checkout|setup-python)@[0-9a-f]{40}",
-            )
-        self.assertIn("schedule:", update_workflow)
-        self.assertIn("pull-requests: write", update_workflow)
-        self.assertIn("gh pr create", update_workflow)
-        self.assertIn("render_upstream_report.py", update_workflow)
-        self.assertIn("docs/UPSTREAM_REPORT.md", update_workflow)
-        self.assertNotIn("gh pr merge", update_workflow)
-        self.assertNotIn("enable-auto-merge", update_workflow)
+        self.assertNotRegex(validate_workflow, r"actions/(checkout|setup-python)@v")
+        self.assertRegex(validate_workflow, r"actions/(checkout|setup-python)@[0-9a-f]{40}")
+        self.assertIn("check_cursor_terms.py", validate_workflow)
+
+    def test_upstream_cursor_names_are_covered(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "scripts/check_cursor_terms.py"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_official_or_compatible_plugin_validator_passes(self) -> None:
         subprocess.run(
@@ -306,6 +327,7 @@ class PortTests(unittest.TestCase):
             "Custom Mode",
             "/plugin marketplace add",
             "docs/harness",
+            "gpt-5.6",
             "pstack-models.mdc",
             "/loop",
             "api2.cursor.sh",

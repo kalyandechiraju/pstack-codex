@@ -9,6 +9,7 @@ comes out through an ordered, allowlisted set of mechanical transforms.
 | Path | Role |
 | --- | --- |
 | `vendor/cursor-plugins/pstack/` | Byte-exact upstream archive at the pinned commit. **Never edit.** |
+| `vendor/cursor-plugins/scripts/` | Upstream's harness generator, vendored only for its `TERMS` list. **Never edit.** |
 | `config/upstream.json` | Upstream repo, commit, version, paths. |
 | `config/hashes/upstream.sha256` | SHA-256 manifest of the vendor tree. |
 | `config/compatibility-allowlist.json` | Ordered literal/regex/prose transforms applied to generated text. |
@@ -16,6 +17,8 @@ comes out through an ordered, allowlisted set of mechanical transforms.
 | `plugins/pstack-codex/` | **Generated** Codex plugin (skills, agent TOML, manifest). Never hand-edit. |
 | `.agents/plugins/marketplace.json`, `marketplace.json` | Codex marketplace entries; must stay identical. |
 | `scripts/port.py` | Generator: vendor → `plugins/pstack-codex`. Skips upstream `plugin.json` and `docs/harness/`. |
+| `config/cursor-terms.json` | How the port handles each Cursor name in upstream's `TERMS` list. |
+| `scripts/check_cursor_terms.py` | Fails on unlisted upstream Cursor names or translated names leaking into the port. |
 | `scripts/sync_upstream.py` | `--check` vendor hashes; `--refresh` re-archive pin; `--write-hashes` only after a reviewed refresh. |
 | `scripts/run_plugin_validator.py` | Official Codex validator if present, then `validate_codex_plugin.py` fallback. |
 | `scripts/render_upstream_report.py` | Writes `docs/UPSTREAM_REPORT.md` for upstream-sync PRs. |
@@ -29,13 +32,15 @@ Run everything with Python 3.11+ (tests use `tomllib`); no network needed.
 ```bash
 python3 scripts/sync_upstream.py --check
 python3 scripts/port.py
+python3 scripts/check_cursor_terms.py
 python3 scripts/run_plugin_validator.py plugins/pstack-codex
 python3 -m unittest discover -s tests -v
 ```
 
-CI (`.github/workflows/validate.yml`) runs the same four steps. A weekly
-workflow (`upstream-update.yml`) refreshes from upstream and opens a review PR;
-it must never auto-merge.
+CI (`.github/workflows/validate.yml`) runs these steps plus
+`scripts/check_cursor_terms.py`. Upstream syncs are manual
+(`python3 scripts/sync_upstream.py --latest`); there is no scheduled workflow.
+See `docs/UPSTREAM_SYNC.md`.
 
 ## Rules
 
@@ -51,9 +56,13 @@ it must never auto-merge.
 - Skill parity is exact: same 56 skill directories as upstream.
 - Generation must be deterministic; running `port.py` twice yields identical
   bytes.
-- Use real Codex model slugs (`gpt-5.6-luna` fast, `gpt-6-astra` judgment), not
-  synthetic `pstack.*` aliases. Reasoning effort lives in `reasoning_effort`,
-  never in the slug.
+- Use real Codex model slugs (`gpt-6-luna` fast, `gpt-6-astra` judgment,
+  `gpt-6.1-sol` review), not synthetic `pstack.*` aliases. Reasoning effort
+  lives in `reasoning_effort`, never in the slug. Fast roles sit two steps below
+  judgment roles and panels.
+- Translate Cursor-isms with build-time rewrites, not a runtime adapter
+  (`docs/adr/0001-build-time-rewrite.md`). Every upstream `TERMS` name needs an
+  entry in `config/cursor-terms.json`.
 - `automations/benny/` is shipped dormant; do not register it.
 - Bump the upstream pin only by editing `config/upstream.json` and running
   `sync_upstream.py --refresh`; review the full vendor diff.
