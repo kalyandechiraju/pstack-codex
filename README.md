@@ -5,7 +5,7 @@
   Investigate deeply, choose the right playbook, delegate deliberately, and finish with evidence.</p>
 
   [![Validate](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml/badge.svg)](https://github.com/kalyandechiraju/pstack-codex/actions/workflows/validate.yml)
-  [![Upstream pstack](https://img.shields.io/badge/upstream-0.14.8-6D5AE6)](https://github.com/cursor/plugins/tree/7314f723a487ec406b6369fe5865ba034cfed166/pstack)
+  [![Upstream pstack](https://img.shields.io/badge/upstream-0.15.29-6D5AE6)](https://github.com/cursor/plugins/tree/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack)
   [![License: MIT](https://img.shields.io/badge/license-MIT-2D9D78)](LICENSE)
 
   [Install](#install) · [Learn pstack](#learn-pstack) · [See the translation](#from-cursor-to-codex) · [Develop the port](#development)
@@ -42,9 +42,13 @@ permissions—name the boundary you actually want.
 > A source-checked, interactive walkthrough of setup, prompting, new and
 > existing projects, verification, workflows, guardrails, and worked examples.
 
+For the upstream author's operating model, read
+[How the author uses pstack](docs/AUTHOR_WORKFLOW_NOTES.md). It distills Parts 1
+and 2 of Lauren Tan's guide and preserves links to both source posts.
+
 The supplied guide is preserved unchanged from the provided file. It reviews
 upstream **pstack 0.15.0** and uses the original Cursor command and path syntax.
-This repository currently ports the pinned **0.14.8** snapshot to Codex. Use the
+This repository currently ports the pinned **0.15.29** snapshot to Codex. Use the
 translation below when following it here.
 
 ### The useful mental model
@@ -97,10 +101,12 @@ workspace paths, model roles, and agent manifests for Codex.
 | `.cursor/skills/` | `.agents/skills/` |
 | Cursor model rules | `~/.codex/pstack-models.toml` |
 
-The generated defaults use real Codex model slugs: `gpt-5.6-luna` for fast
-work, `gpt-5.6-sol` for review, `gpt-6-astra` for judgment, and
-`gpt-5.6-terra` for the fourth panel. `$setup-pstack` writes semantic role
-tables and panel arrays as valid TOML; see
+The generated defaults use real Codex model slugs: `gpt-6-luna` at `medium`
+for fast work, `gpt-6-astra` at `xhigh` for judgment, and review panels that
+pair `gpt-6-astra` with `gpt-6.1-sol` at `xhigh`. That is the `large` budget;
+fast roles always sit two reasoning steps below judgment roles and panels.
+`$setup-pstack` writes semantic role tables, panel arrays, and the chosen budget
+as valid TOML; see
 [`config/pstack-models.toml.example`](config/pstack-models.toml.example).
 
 ## Install
@@ -115,6 +121,9 @@ codex plugin add pstack-codex@pstack-codex
 Start a new Codex task so it discovers the installed skills. Invoke the main
 workflow with `$poteto-mode` and configure model roles with `$setup-pstack`.
 The installable package is [`plugins/pstack-codex`](plugins/pstack-codex).
+
+This port targets Codex only. In Claude Code, install upstream pstack instead:
+`/plugin marketplace add cursor/plugins`, then `/plugin install pstack@cursor-plugins`.
 
 Verify the installation:
 
@@ -176,9 +185,14 @@ Use `~/.codex/agents/` instead for user-level agents.
 ```bash
 python3 scripts/port.py
 python3 scripts/sync_upstream.py --check
+python3 scripts/check_cursor_terms.py
 python3 scripts/run_plugin_validator.py plugins/pstack-codex
 python3 -m unittest discover -s tests -v
 ```
+
+Upstream syncs are manual; see [`docs/UPSTREAM_SYNC.md`](docs/UPSTREAM_SYNC.md).
+The port rewrites upstream text at build time rather than translating at
+runtime; [ADR 0001](docs/adr/0001-build-time-rewrite.md) records why.
 
 The generator is the source of truth for `plugins/pstack-codex`; changes to a
 generated file should be made in the generator or allowlist and regenerated.

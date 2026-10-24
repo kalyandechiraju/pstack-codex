@@ -2,107 +2,97 @@
 # Each role is a semantic name used by pstack. Single-model roles use model and
 # reasoning_effort; panel roles use a models array of inline tables.
 # Use inherit-parent or auto as a model value to keep the parent chat model.
+# budget records the reasoning budget setup-pstack applied. It sets judgment
+# and panel roles; fast roles sit two steps lower on max > xhigh > high >
+# medium > low, never below low: unlimited (max/high), large (xhigh/medium),
+# medium (high/low), small (medium/low).
+
+budget = "large"
 
 [roles.feature]
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 reasoning_effort = "medium"
 
 [roles.refactoring]
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 reasoning_effort = "medium"
 
 [roles.bug_fix]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.perf_issue]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.hillclimb]
-model = "gpt-6-astra"
-reasoning_effort = "high"
+model = "gpt-6-luna"
+reasoning_effort = "medium"
 
 [roles.judgment_and_prose]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.hardest_tasks]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.how_explorer]
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 reasoning_effort = "medium"
 
 [roles.how_explainer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
-
-[roles.how_critics]
-models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
-]
+reasoning_effort = "xhigh"
 
 [roles.why_investigators]
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 reasoning_effort = "medium"
 
 [roles.why_synthesizer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_tooling]
-model = "gpt-5.6-sol"
-reasoning_effort = "medium"
+model = "gpt-6.1-sol"
+reasoning_effort = "xhigh"
 
 [roles.reflect_judgment]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_divergent]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.reflect_synthesizer]
 model = "gpt-6-astra"
-reasoning_effort = "high"
+reasoning_effort = "xhigh"
 
 [roles.arena_runners]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.arena_cross_judge_pool]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.swarm_workers]
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 reasoning_effort = "medium"
 
 [roles.architect_runners]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]
 
 [roles.interrogate_reviewers]
 models = [
-  { model = "gpt-6-astra", reasoning_effort = "high" },
-  { model = "gpt-5.6-sol", reasoning_effort = "medium" },
-  { model = "gpt-5.6-luna", reasoning_effort = "medium" },
-  { model = "gpt-5.6-terra", reasoning_effort = "xhigh" }
+  { model = "gpt-6-astra", reasoning_effort = "xhigh" },
+  { model = "gpt-6.1-sol", reasoning_effort = "xhigh" }
 ]

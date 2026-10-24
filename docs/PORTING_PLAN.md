@@ -9,7 +9,7 @@ commands, paths, model identifiers, and agent manifests with Codex equivalents.
 ## Source of truth
 
 The source snapshot is the `pstack` directory from
-`cursor/plugins@7314f723a487ec406b6369fe5865ba034cfed166`. The archive is
+`cursor/plugins@88d47514b82e7c44f00f2b2a72ff6dd12158038c`. The archive is
 vendored byte-for-byte under `vendor/cursor-plugins/pstack`; the commit, source
 URL, and version are recorded in [`config/upstream.json`](../config/upstream.json).
 
@@ -41,7 +41,7 @@ URL, and version are recorded in [`config/upstream.json`](../config/upstream.jso
 ## Acceptance criteria
 
 - The vendored tree matches the pinned archive and its hash manifest.
-- The generated plugin has the same 45 skill directories as upstream.
+- The generated plugin has the same 56 skill directories as upstream.
 - `plugin.json` is Codex-shaped and points at `./skills/`.
 - `plugin.json.interface` contains the required Codex presentation metadata and
   every generated skill permits model invocation.

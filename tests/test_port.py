@@ -71,9 +71,10 @@ def allowlisted_transform(
         example = (ROOT / "config/pstack-models.toml.example").read_text(encoding="utf-8")
         replacement = (
             "### 5. Write the rule\n\n"
-            "Write `~/.codex/pstack-models.toml` as a valid TOML file. Each semantic role\n"
-            "has a table under `[roles]`; single-model roles use `model` and\n"
-            "`reasoning_effort`, while panel roles use a `models` array of inline tables.\n"
+            "Write `~/.codex/pstack-models.toml` as a valid TOML file. Record the chosen\n"
+            "budget label in a top-level `budget` key. Each semantic role has a table\n"
+            "under `[roles]`; single-model roles use `model` and `reasoning_effort`, while\n"
+            "panel roles use a `models` array of inline tables.\n"
             "Use `inherit-parent` or `auto` as a model value when the role should run on\n"
             "the parent chat model. Overwrite the whole file so reruns stay idempotent.\n\n"
             "The default role-to-model mapping is:\n\n"
@@ -130,7 +131,6 @@ class PortTests(unittest.TestCase):
             "hardest_tasks",
             "how_explorer",
             "how_explainer",
-            "how_critics",
             "why_investigators",
             "why_synthesizer",
             "reflect_tooling",
@@ -144,19 +144,39 @@ class PortTests(unittest.TestCase):
             "interrogate_reviewers",
         }
         self.assertEqual(set(roles), expected_roles)
-        self.assertEqual(roles["feature"]["model"], "gpt-5.6-luna")
-        self.assertEqual(roles["reflect_tooling"]["model"], "gpt-5.6-sol")
-        self.assertEqual(roles["judgment_and_prose"]["model"], "gpt-6-astra")
+        self.assertEqual(config["budget"], "large")
+        fast_roles = {
+            "feature",
+            "refactoring",
+            "bug_fix",
+            "perf_issue",
+            "hillclimb",
+            "how_explorer",
+            "why_investigators",
+            "swarm_workers",
+        }
+        for name, role in roles.items():
+            if "models" in role:
+                continue
+            with self.subTest(role=name):
+                if name in fast_roles:
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6-luna", "medium"))
+                elif name == "reflect_tooling":
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6.1-sol", "xhigh"))
+                else:
+                    self.assertEqual((role["model"], role["reasoning_effort"]), ("gpt-6-astra", "xhigh"))
         for panel_name in (
-            "how_critics",
             "arena_runners",
             "arena_cross_judge_pool",
             "architect_runners",
             "interrogate_reviewers",
         ):
             panel = roles[panel_name]["models"]
-            self.assertEqual(len(panel), 4, panel_name)
-            self.assertEqual(panel[-1]["model"], "gpt-5.6-terra")
+            self.assertEqual(
+                [(entry["model"], entry["reasoning_effort"]) for entry in panel],
+                [("gpt-6-astra", "xhigh"), ("gpt-6.1-sol", "xhigh")],
+                panel_name,
+            )
 
         setup = (DESTINATION / "skills/setup-pstack/SKILL.md").read_text(encoding="utf-8")
         match = re.search(r"```toml\n(.*?)```", setup, re.DOTALL)
@@ -173,7 +193,7 @@ class PortTests(unittest.TestCase):
         )
         self.assertIsNone(forbidden.search(generated_text))
         self.assertNotIn("always-applied", generated_text)
-        for slug in ("gpt-5.6-luna", "gpt-5.6-sol", "gpt-6-astra", "gpt-5.6-terra"):
+        for slug in ("gpt-6-luna", "gpt-6-astra", "gpt-6.1-sol"):
             self.assertIn(slug, generated_text)
 
     def test_manifest_is_codex_shaped(self) -> None:
@@ -189,22 +209,22 @@ class PortTests(unittest.TestCase):
         self.assertEqual(marketplace["plugins"][0]["source"]["path"], "./plugins/pstack-codex")
         self.assertEqual(marketplace, json.loads((ROOT / "marketplace.json").read_text()))
 
-    def test_ci_is_pinned_and_upstream_job_only_opens_prs(self) -> None:
+    def test_ci_is_pinned_and_syncs_are_manual(self) -> None:
+        workflows = sorted(path.name for path in (ROOT / ".github/workflows").iterdir())
+        self.assertEqual(workflows, ["validate.yml"])
         validate_workflow = (ROOT / ".github/workflows/validate.yml").read_text()
-        update_workflow = (ROOT / ".github/workflows/upstream-update.yml").read_text()
-        for workflow in (validate_workflow, update_workflow):
-            self.assertNotRegex(workflow, r"actions/(checkout|setup-python)@v")
-            self.assertRegex(
-                workflow,
-                r"actions/(checkout|setup-python)@[0-9a-f]{40}",
-            )
-        self.assertIn("schedule:", update_workflow)
-        self.assertIn("pull-requests: write", update_workflow)
-        self.assertIn("gh pr create", update_workflow)
-        self.assertIn("render_upstream_report.py", update_workflow)
-        self.assertIn("docs/UPSTREAM_REPORT.md", update_workflow)
-        self.assertNotIn("gh pr merge", update_workflow)
-        self.assertNotIn("enable-auto-merge", update_workflow)
+        self.assertNotRegex(validate_workflow, r"actions/(checkout|setup-python)@v")
+        self.assertRegex(validate_workflow, r"actions/(checkout|setup-python)@[0-9a-f]{40}")
+        self.assertIn("check_cursor_terms.py", validate_workflow)
+
+    def test_upstream_cursor_names_are_covered(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "scripts/check_cursor_terms.py"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_official_or_compatible_plugin_validator_passes(self) -> None:
         subprocess.run(
@@ -219,7 +239,7 @@ class PortTests(unittest.TestCase):
         source_skills = {path.name for path in (SOURCE / "skills").iterdir() if path.is_dir()}
         generated_skills = {path.name for path in (DESTINATION / "skills").iterdir() if path.is_dir()}
         self.assertEqual(generated_skills, source_skills)
-        self.assertEqual(len(generated_skills), 45)
+        self.assertEqual(len(generated_skills), 56)
 
     def test_custom_agents_are_valid_toml(self) -> None:
         expected = {
@@ -236,7 +256,7 @@ class PortTests(unittest.TestCase):
 
     def test_skill_invocation_metadata_is_codex_compatible(self) -> None:
         skill_dirs = [path for path in (DESTINATION / "skills").iterdir() if path.is_dir()]
-        self.assertEqual(len(skill_dirs), 45)
+        self.assertEqual(len(skill_dirs), 56)
         explicit_values = 0
         for skill_root in skill_dirs:
             contents = (skill_root / "SKILL.md").read_text(encoding="utf-8")
@@ -244,7 +264,7 @@ class PortTests(unittest.TestCase):
             if match:
                 explicit_values += 1
                 self.assertEqual(match.group(1), "false", skill_root.name)
-        self.assertEqual(explicit_values, 44)
+        self.assertEqual(explicit_values, 55)
 
     def test_internal_relative_markdown_links_resolve(self) -> None:
         broken: list[tuple[str, str]] = []
@@ -263,12 +283,12 @@ class PortTests(unittest.TestCase):
     def test_generated_copy_changes_match_allowlist(self) -> None:
         rules = json.loads((ROOT / "config/compatibility-allowlist.json").read_text())
         source_skills = {path.name for path in (SOURCE / "skills").iterdir() if path.is_dir()}
-        skipped = {Path(".cursor-plugin/plugin.json"), Path("agents/comment-sicko.md"), Path("agents/poteto-agent.md")}
+        skipped = {Path(".cursor-plugin/plugin.json"), Path("plugin.json"), Path("agents/comment-sicko.md"), Path("agents/poteto-agent.md")}
         for source_path in sorted(SOURCE.rglob("*")):
             if not source_path.is_file():
                 continue
             relative = source_path.relative_to(SOURCE)
-            if relative in skipped:
+            if relative in skipped or relative.parts[:2] == ("docs", "harness"):
                 continue
             generated_path = DESTINATION / relative
             with self.subTest(path=relative):
@@ -298,6 +318,16 @@ class PortTests(unittest.TestCase):
             "gpt-5.6-sol-max",
             "grok-4.6-fast-xhigh",
             "claude-opus-5-thinking-xhigh",
+            "claude-opus-5-5",
+            "grok-4.7",
+            "grok-*",
+            "composer-",
+            "cursor.com",
+            "Codex.com",
+            "Custom Mode",
+            "/plugin marketplace add",
+            "docs/harness",
+            "gpt-5.6",
             "pstack-models.mdc",
             "/loop",
             "api2.cursor.sh",
